@@ -3,7 +3,7 @@
 Plugin Name: Magento
 Plugin URI: http://pronamic.eu/wordpress/magento/
 Description: Integrate Magent content into your WordPress website. 
-Version: 0.1
+Version: 0.1-beta
 Requires at least: 3.0
 Author: Pronamic
 Author URI: http://pronamic.eu/

@@ -1,5 +1,5 @@
 === Magento ===
-Contributors: pronamic, remcotolsma, boonstrastefan
+Contributors: pronamic, remcotolsma, stefanboonstra
 Tags: magento, webshop, e-commerce
 Requires at least: 3.0
 Tested up to: 3.1

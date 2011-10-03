@@ -3,7 +3,7 @@ Contributors: pronamic, remcotolsma, boonstrastefan
 Tags: magento, webshop, e-commerce
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: 0.1-beta
+Stable tag: beta-0.1
 
 Integrate Magento content into your WordPress website. 
 
@@ -20,8 +20,8 @@ WordPress installation and then activate the Plugin from Plugins page.
 
 == Changelog ==
 
-= 0.1-beta =
-*	
+= beta-0.1 =
+*	Initial release
 
 
 == Links ==

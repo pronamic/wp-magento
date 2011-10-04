@@ -115,16 +115,16 @@ class Magento {
 				} 
 				return $flattened; 
 			}*/
-			
-			function array_flatten($a) {
+			/*
+			function array_flatten($array) {
+				if(){
+					
+				}
 				
 				
 				
-				
-				return $flattened
+				return $flattened;
 			}
-			
-			
 			
 			
 			
@@ -141,11 +141,11 @@ class Magento {
 			
 			
 			
-			
+			*/
 			
 			// 
-			$category_id = '100';
-			function arrayflattener($value, $key){
+			/*$category_id = '100';
+			function arrayflattener($value, $key){*/
 				/*if($key == 'category_id'){
 					$cat_id = $value;
 				}
@@ -157,8 +157,8 @@ class Magento {
 				
 				//$results[$key] = $value;
 				//echo $key . ' => ' . $value . '<br />';
-			}			
-			array_walk_recursive($result, 'arrayflattener');
+			/*}			
+			array_walk_recursive($result, 'arrayflattener');*/
 			
 			
 			

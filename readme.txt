@@ -22,6 +22,7 @@ WordPress installation and then activate the Plugin from Plugins page.
 
 = beta-0.1 =
 *	Initial release
+*	Made multiple 'pid' input possible. Comma seperated.
 
 
 == Links ==

@@ -25,6 +25,18 @@
 			</tr>
 			<tr valign="top">
 				<th scope="row">
+					<label for="store-url-field">Store URL</label>
+				</th>
+				<td>
+					<input id="store-url-field" name="magento-store-url" value="<?php echo get_option('magento-store-url'); ?>" type="text" class="regular-text" />
+
+					<span class="description">
+						http://storedomain.ext/
+					</span>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row">
 					<label for="username-field">Username</label>
 				</th>
 				<td>

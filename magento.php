@@ -10,6 +10,8 @@ Author URI: http://pronamic.eu/
 License: GPL
 */
 
+//load_plugin_textdomain('pronamic-magento', false, "/wp-content/plugins/magento/languages/");
+
 class Magento {
 	public static function bootstrap() {
 		add_action('init', array(__CLASS__, 'initialize'));
@@ -45,7 +47,7 @@ class Magento {
 			$session = $client->login($username, $apiKey);
 			$connection = true;
 		}catch(Exception $e){
-			$content .= '<pre>Magento plugin says:</pre> Unable to connect to host.';
+			$content .= __('<pre>Magento plugin says:</pre> Unable to connect to host.', 'pronamic-magento');
 			$connection = false;
 		}
 		
@@ -56,7 +58,7 @@ class Magento {
 			include($stylesheet);
 			
 			// Start of list
-			$content .= '<ul class="pronamic-magento-items-grid">';
+			$content .= __('<ul class="pronamic-magento-items-grid">', 'pronamic-magento');
 			
 			// If there are ID's being parsed, do these actions.
 			if(isset($atts['pid'])) {			
@@ -101,8 +103,7 @@ class Magento {
 						foreach($value as $key2=>$value2){
 							if($key2 == 'category_id'){
 								$tmp_id = $value2;
-							}
-							
+							}							
 							if($key2 == 'name' && strtolower(trim($value2)) == $cat){
 								$cat_id = $tmp_id;
 								$break = true;
@@ -119,9 +120,9 @@ class Magento {
 				if(!empty($cat_id)){
 					// Get list of all products so we can filter out the required ones.
 					try{
-						$productlist = $client->call($session, 'catalog_product.list');
+						$productlist = $client->call($session, 'catalog_pro duct.list');
 					}catch(Exception $e){
-						$content .= 'We\'re sorry, we weren\'t able to find any products with the queried category id.';
+						$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento');
 					}
 					
 					// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
@@ -166,7 +167,7 @@ class Magento {
 	}
 	
 	/**
-	 * This function will get products and their information by ID
+	 * This function will get products and their information by ID or SKU
 	 * 
 	 * @param int $productId
 	 * @param Object $client
@@ -185,7 +186,7 @@ class Magento {
 				$images = $client->call($session, 'product_media.list', $productId);
 			}catch(Exception $e){	}
 		}catch(Exception $e){
-			$content .= 'Unable to obtain any products.';
+			$content .= __('Unable to obtain any products.', 'pronamic-magento');
 		}
 		
 		// Build up the obtained information (if any) and pass them on in the $content variable which will be returned.
@@ -220,7 +221,7 @@ class Magento {
 		try{
 			$result = $client->call($session, 'catalog_category.tree');	
 		}catch(Exception $e){
-			$content .= 'We\'re sorry, we were unable to obtain any categories.';
+			$content .= __('We\'re sorry, we were unable to obtain any categories.', 'pronamic-magento');
 		}
 		
 		return $result;
@@ -367,28 +368,3 @@ class Magento {
 }
 
 Magento::bootstrap();
-
-/////////////////////////////////			OLD CODE			/////////////////////////////////////////////////
-
-
-			
-			/*if($result) {
-				$content .= '<dl>';
-				//include("templates/defaulttemplate.php");
-				
-				$content .= '    <dt>Id</dt>';
-				$content .= '    <dd>' . $result['product_id'] . '</dd>';
-				
-				$content .= '    <dt>SKU</dt>';
-				$content .= '    <dd>' . $result['sku'] . '</dd>';
-				
-				$content .= '    <dt>Name</dt>';
-				$content .= '    <dd>' . $result['name'] . '</dd>';
-				
-				$content .= '    <dt>Description</dt>';
-				$content .= '    <dd>' . $result['description'] . '</dd>';
-				
-				$content .= '    <dt>Price</dt>';
-				$content .= '    <dd>' . $result['price'] . '</dd>';
-				$content .= '</dl>';
-			}*/

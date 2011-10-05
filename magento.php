@@ -92,95 +92,78 @@ class Magento {
 		if(isset($atts['cat'])){
 			$cat = strtolower(trim($atts['cat']));
 			$result = '';
-			echo $cat . '<br /><br />';
+			
 			// Get all categories so we can search for the wanted one.
 			try{
 				$result = $client->call($session, 'catalog_category.tree');	
 			}catch(Exception $e){
-				$content .= 'We\'re sorry, we were unable to obtain any catagories.';
+				$content .= 'We\'re sorry, we were unable to obtain any categories.';
 			}
-
 			
-			/*function array_flatten($result) { 
-				if (!is_array($result)) { 
-					return FALSE; 
-				} 
-				$flattened = array(); 
-				foreach ($result as $key => $value) { 
-					if (is_array($value)) { 
-						$flattened = array_merge($flattened, array_flatten($value)); 
-					}else{ 
-						$flattened[$key] = $value; 
-					} 
-				} 
-				return $flattened; 
-			}*/
-			/*
-			function array_flatten($array) {
-				if(){
+			error_reporting(E_ALL ^ E_NOTICE);
+			
+			// Magento passes a wrapper array, to make it easier on the getCatagories function
+			// we throw that wrapper away here and then call the function, so we get a flat array.
+			$result = $result['children'];
+			$result = self::flattenCategories($result);
+			
+			// Loop through the flattened array to match the catagory name with the given shortcode name.
+			$cat_id = '';
+			foreach($result as $key=>$value){
+				$tmp_id = '';
+				foreach($value as $key2=>$value2){
+					if($key2 == 'category_id'){
+						$tmp_id = $value2;
+					}
 					
+					if($key2 == 'name' && strtolower(trim($value2)) == $cat){
+						$cat_id = $tmp_id;
+						$break = true;
+						break;
+					}
 				}
-				
-				
-				
-				return $flattened;
+				if($break){
+					break;
+				}
 			}
 			
-			
-			
-			
-			$flattened = array_flatten($result);			
-			echo '<br/> <br/>';
-						
-			foreach($flattened as $key => $value){
-				echo $key . ' => ' . $value . '<br />';
+			// If there's a result on our query.
+			if(!empty($cat_id)){
+				// Get list of all products so we can filter out the required ones.
+				try{
+					$productlist = $client->call($session, 'catalog_product.list');
+				}catch(Exception $e){
+					$content .= 'We\'re sorry, we weren\'t able to find any products with the queried category id.';
+				}
+				
+				// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
+				if($productlist){
+					$productId = '';
+					$productIds = array();
+					foreach($productlist as $key=>$value){
+						foreach($value as $key2=>$value2){
+							if($key2 == 'product_id'){
+								$productId = $value2;
+							}
+							if($key2 == 'category_ids'){
+								foreach($value2 as $value3){
+									if($value3 == $cat_id){
+										$count = count($productIds);
+										$productIds[$count] = $productId;
+									}
+								}
+							}
+						}
+					}
+					// Get the values from productIds in random order, then output them with getProductID()
+					$i = 0;
+					foreach($productIds as $value){					
+						$rand = array_rand($productIds);
+						$content .= self::getProductByID($productIds[$rand], $client, $session, $url, $template);
+						unset($productIds[$rand]);
+					}
+				}
 			}
-			
-			var_dump($flattened);
-			
-			
-			
-			
-			*/
-			
-			// 
-			/*$category_id = '100';
-			function arrayflattener($value, $key){*/
-				/*if($key == 'category_id'){
-					$cat_id = $value;
-				}
-				if($value == $cat){
-					return $cat_id; 
-				}*/
-				
-				//echo $category_id;
-				
-				//$results[$key] = $value;
-				//echo $key . ' => ' . $value . '<br />';
-			/*}			
-			array_walk_recursive($result, 'arrayflattener');*/
-			
-			
-			
-			
-			
-			
-			
-			// Put $results in reverse and walk through it. This will allow us to, when we hit the keyword 
-			// we're looking for, instantly pick the right category id. Very clever. Very clever indeed.
-			/*$results = array_reverse($results);
-			foreach($results as $key=>$value){
-				echo $key . ' => '. $value;
-				
-				if(strtolower(trim($value)) == $cat){
-					echo 'HOERA, GEVONDEN!';
-					$getnextID = true;
-				}
-				if($key == 'category_id' && $getnextID){
-					echo 'Categorie ID: ' . $value;
-				}
-			}*/
-			
 		} // Finished walking through parsed catagories.
 		
 		// End of list
@@ -200,6 +183,7 @@ class Magento {
 	 */
 	public static function getProductByID($productId, $client, $session, $url, $template) {
 		$content = '';
+		$result = '';
 		
 		// Get product information and images from specified product ID.
 		try{
@@ -214,7 +198,7 @@ class Magento {
 		// Build up the obtained information (if any) and pass them on in the $content variable which will be returned.
 		if($result){
 			if($images){
-				$image = $images[1];
+				$image = $images[0];
 			}else{
 				unset($image);
 				$image['url'] = plugins_url('images/noimg.gif', __FILE__);
@@ -230,6 +214,47 @@ class Magento {
 		}
 		
 		return $content;
+	} // End of getProductByID($productId, $client, $session, $url, $template)
+	
+	/**
+	 * Function to flatten the multidemensional array given by the Magento API
+	 * This is not a very dynamic function, for it is created specifically 
+	 * to break down the Magento catagory hierarchy.
+	 * 
+	 * @param array $array
+	 */
+	private static function flattenCategories($array){
+		$loop = false;
+		$newarray = array();
+		foreach($array as $key=>$value){
+			if(is_array($value)){
+				if(is_array($value['children'])){
+					$count = count($newarray);
+					$newarray[$count] = $value['children'];
+					$array[$key]['children'] = '';
+				}else{
+					foreach($value as $key2=>$value2){
+						$count = count($newarray);
+						if(is_array($value2)){
+							$newarray[$count] = $value2;
+							$array[$key][$key2] = '';
+						}
+					}
+				}
+			}
+		}				
+		if(!empty($newarray)){
+			foreach($newarray as $value){
+				$count = count($array);
+				$array[$count] = $value;
+			}
+			$loop = true;
+		}
+		if($loop){
+			$array = self::flattenCategories($array);
+		}
+		
+		return $array;
 	}
 
 	public static function adminInitialize() {

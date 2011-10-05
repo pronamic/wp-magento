@@ -23,6 +23,7 @@ WordPress installation and then activate the Plugin from Plugins page.
 = beta-0.1 =
 *	Initial release
 *	Made multiple 'pid' input possible. Comma seperated.
+*	Added shortcode 'cat'. Input a String with a category name to get a fixed number of three random (or less if there are less than three products with this category) products.
 
 
 == Links ==

@@ -30,144 +30,137 @@ class Magento {
 	 * @return String $content
 	 */
 	public static function shortcode($atts) {
+		error_reporting(E_ALL ^ E_NOTICE);
+		
+		$content = '';
+		
 		$wsdl = get_option('magento-api-wsdl');
 		$username = get_option('magento-api-username');
 		$apiKey = get_option('magento-api-key');
 		$url = get_option('magento-store-url');
 
-		$client = new SoapClient($wsdl);
-		$session = $client->login($username, $apiKey);
-		
-		$content = '';
-		
-		// Get a template ready, if there's no custom template in the current theme's stylesheet directory, get the default one.
-		$template = '';
-		$templates = array('pronamic-magento-plugintemplate.php');
-		$template = locate_template($templates);
-		if($template){
-			$template = explode('/', $template);
-			$count = count($template);
-			$template = get_bloginfo('stylesheet_directory') . '/' . $template[$count-1];
-		}else{
-			$template = 'templates/defaulttemplate.php';
+		$connection = false;
+		try{
+			$client = new SoapClient($wsdl);
+			$session = $client->login($username, $apiKey);
+			$connection = true;
+		}catch(Exception $e){
+			$content .= '<pre>Magento plugin says:</pre> Unable to connect to host.';
+			$connection = false;
 		}
 		
-		// Get the stylesheet, like the template, this plugin accepts custom css files as well.
-		$stylesheet = '';
-		$stylesheets = array('pronamic-magento-plugin-stylesheet.css');
-		$stylesheet = locate_template($stylesheets);
-		if($stylesheet){
-			$stylesheet = explode('/', $stylesheet);
-			$count = count($stylesheet);
-			$stylesheet = get_bloginfo('stylesheet_directory') . '/' . $stylesheet[$count-1];
-		}else{
-			$stylesheet = 'css/default.css';
-			//$stylesheet = plugins_url('css/default.css', __FILE__);
-		}		
-		include($stylesheet);
-		
-		// Start of list
-		$content .= '<ul class="pronamic-magento-items-grid">';
-		
-		// If there are ID's being parsed, do these actions.
-		if(isset($atts['pid'])) {			
-			$productIds = explode(',', $atts['pid']);
-			if(count($productIds) > 1){
-				// Multiple id's parsed, loop through them.
-				foreach($productIds as $value){
-					if(!empty($value)){
-						$content .= self::getProductByID(trim($value), $client, $session, $url, $template);
+		if($connection){
+			// Template and stylesheet
+			$template = self::getTemplate();
+			$stylesheet = self::getStyleSheet();
+			include($stylesheet);
+			
+			// Start of list
+			$content .= '<ul class="pronamic-magento-items-grid">';
+			
+			// If there are ID's being parsed, do these actions.
+			if(isset($atts['pid'])) {			
+				$productIds = explode(',', $atts['pid']);
+				if(count($productIds) > 1){
+					// Multiple id's parsed, loop through them.
+					foreach($productIds as $value){
+						if(!empty($value)){
+							$content .= self::getProductByID(trim($value), $client, $session, $url, $template);
+						}
+					}
+				}else{
+					// Single id parsed, pass first item in array.
+					$productId = trim($productIds[0]);
+					if(!empty($productId)){
+						$content .= self::getProductByID(trim($productId), $client, $session, $url, $template);
 					}
 				}
-			}else{
-				// Single id parsed, pass first item in array.
-				$productId = trim($productIds[0]);
-				if(!empty($productId)){
-					$content .= self::getProductByID(trim($productId), $client, $session, $url, $template);
-				}
-			}
-		} // Finished looping through parsed ID's
-
-		// Whenever shortcode 'cat' is parsed, these actions will happen.
-		if(isset($atts['cat'])){
-			$cat = strtolower(trim($atts['cat']));
-			$result = '';
-			
-			// Get all categories so we can search for the wanted one.
-			try{
-				$result = $client->call($session, 'catalog_category.tree');	
-			}catch(Exception $e){
-				$content .= 'We\'re sorry, we were unable to obtain any categories.';
-			}
-			
-			error_reporting(E_ALL ^ E_NOTICE);
-			
-			// Magento passes a wrapper array, to make it easier on the getCatagories function
-			// we throw that wrapper away here and then call the function, so we get a flat array.
-			$result = $result['children'];
-			$result = self::flattenCategories($result);
-			
-			// Loop through the flattened array to match the catagory name with the given shortcode name.
-			$cat_id = '';
-			foreach($result as $key=>$value){
-				$tmp_id = '';
-				foreach($value as $key2=>$value2){
-					if($key2 == 'category_id'){
-						$tmp_id = $value2;
-					}
+			} // Finished looping through parsed ID's
+	
+			// Whenever shortcode 'cat' is parsed, these actions will happen.
+			if(isset($atts['cat'])){
+				$cat = strtolower(trim($atts['cat']));
+				$result = '';
+				$cat_id = '';
+				
+				// Check if the inputted shortcode cat is numeric or contains a string.
+				if(is_numeric($cat)){
+					$cat_id = $cat;
+				}else{			
+					$result = self::getCatagoryList($client, $session);
 					
-					if($key2 == 'name' && strtolower(trim($value2)) == $cat){
-						$cat_id = $tmp_id;
-						$break = true;
-						break;
+					// Magento passes a wrapper array, to make it easier on the getCatagories function
+					// we throw that wrapper away here and then call the function, so we get a flat array.
+					$result = $result['children'];
+					$result = self::flattenCategories($result);
+					
+					// Loop through the flattened array to match the catagory name with the given shortcode name.
+					// When there is a mach, we need not look further so we break.
+					foreach($result as $key=>$value){
+						$tmp_id = '';
+						foreach($value as $key2=>$value2){
+							if($key2 == 'category_id'){
+								$tmp_id = $value2;
+							}
+							
+							if($key2 == 'name' && strtolower(trim($value2)) == $cat){
+								$cat_id = $tmp_id;
+								$break = true;
+								break;
+							}
+						}
+						if($break){
+							break;
+						}
 					}
-				}
-				if($break){
-					break;
-				}
-			}
-			
-			// If there's a result on our query.
-			if(!empty($cat_id)){
-				// Get list of all products so we can filter out the required ones.
-				try{
-					$productlist = $client->call($session, 'catalog_product.list');
-				}catch(Exception $e){
-					$content .= 'We\'re sorry, we weren\'t able to find any products with the queried category id.';
 				}
 				
-				// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
-				if($productlist){
-					$productId = '';
-					$productIds = array();
-					foreach($productlist as $key=>$value){
-						foreach($value as $key2=>$value2){
-							if($key2 == 'product_id'){
-								$productId = $value2;
-							}
-							if($key2 == 'category_ids'){
-								foreach($value2 as $value3){
-									if($value3 == $cat_id){
-										$count = count($productIds);
-										$productIds[$count] = $productId;
+				// If there's a result on our query.
+				if(!empty($cat_id)){
+					// Get list of all products so we can filter out the required ones.
+					try{
+						$productlist = $client->call($session, 'catalog_product.list');
+					}catch(Exception $e){
+						$content .= 'We\'re sorry, we weren\'t able to find any products with the queried category id.';
+					}
+					
+					// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
+					if($productlist){
+						$productId = '';
+						$productIds = array();
+						foreach($productlist as $key=>$value){
+							foreach($value as $key2=>$value2){
+								if($key2 == 'product_id'){
+									$productId = $value2;
+								}
+								if($key2 == 'category_ids'){
+									foreach($value2 as $value3){
+										if($value3 == $cat_id){
+											$count = count($productIds);
+											$productIds[$count] = $productId;
+										}
 									}
 								}
 							}
 						}
-					}
-					// Get the values from productIds in random order, then output them with getProductID()
-					$i = 0;
-					foreach($productIds as $value){					
-						$rand = array_rand($productIds);
-						$content .= self::getProductByID($productIds[$rand], $client, $session, $url, $template);
-						unset($productIds[$rand]);
+						// Get the values from productIds in random order, then output them with getProductID()
+						$i = 0;
+						foreach($productIds as $value){					
+							$rand = array_rand($productIds);
+							$content .= self::getProductByID($productIds[$rand], $client, $session, $url, $template);
+							unset($productIds[$rand]);
+							$i++;
+							if($i >= 3){
+								break;
+							}
+						}
 					}
 				}
-			}
-		} // Finished walking through parsed catagories.
-		
-		// End of list
-		$content .= '</ul>';
+			} // Finished walking through parsed catagories.
+			
+			// End of list
+			$content .= '</ul>';
+		}
 		
 		return $content;
 	}
@@ -215,6 +208,64 @@ class Magento {
 		
 		return $content;
 	} // End of getProductByID($productId, $client, $session, $url, $template)
+	
+	/**
+	 * Function which returns the catagory tree.
+	 * 
+	 * @param Object $client
+	 * @param String $session
+	 */
+	private static function getCatagoryList($client, $session){
+		// Get all categories so we can search for the wanted one.
+		try{
+			$result = $client->call($session, 'catalog_category.tree');	
+		}catch(Exception $e){
+			$content .= 'We\'re sorry, we were unable to obtain any categories.';
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Get a template ready, if there's no custom template in the current theme's stylesheet directory, get the default one.
+	 * 
+	 * @return String $template (Location to template file, custom or default)
+	 */
+	private static function getTemplate(){
+		$template = '';
+		$templates = array('pronamic-magento-plugintemplate.php');
+		$template = locate_template($templates);
+		if($template){
+			$template = explode('/', $template);
+			$count = count($template);
+			$template = get_bloginfo('stylesheet_directory') . '/' . $template[$count-1];
+		}else{
+			$template = 'templates/defaulttemplate.php';
+		}
+		
+		return $template;
+	}
+	
+	/**
+	 * Get the stylesheet, like the template, this plugin accepts custom css files as well.
+	 * 
+	 * @return String $stylesheet (Location to stylesheet file, custom or default)
+	 */
+	private static function getStyleSheet(){
+		$stylesheet = '';
+		$stylesheets = array('pronamic-magento-plugin-stylesheet.css');
+		$stylesheet = locate_template($stylesheets);
+		if($stylesheet){
+			$stylesheet = explode('/', $stylesheet);
+			$count = count($stylesheet);
+			$stylesheet = get_bloginfo('stylesheet_directory') . '/' . $stylesheet[$count-1];
+		}else{
+			$stylesheet = 'css/default.css';
+			//$stylesheet = plugins_url('css/default.css', __FILE__);
+		}
+		
+		return $stylesheet;
+	}	
 	
 	/**
 	 * Function to flatten the multidemensional array given by the Magento API

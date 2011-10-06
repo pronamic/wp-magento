@@ -8,20 +8,30 @@ function wrapTemplateStart(){
 	return $content;
 }
 
-function templateBody($result, $image){
+/**
+ * This function is used to output Magento products. You may customize the output to your likings, using the following preset functions.
+ * 
+ * Mage::product_title()			--	Outputs the product title
+ * Mage::product_url()				--	Outputs the product url
+ * Mage::product_price()			--	Outputs the product price in format 0.00
+ * Mage::has_image()				--	Checks wether there's an image to display or not
+ * Mage::product_image_url()		--	Outputs the url to the image
+ * 
+ * @return String $content
+ */
+function templateBody(){
 	$content = '';
 	
-	// This is the default template for the Pronamic-Magento plugin
 	$content .= '<li class="pronamic-magento-item">';
 		
-		if($image){
-			$content .= '<a href="'. $url . $result['url_path'] .'" target="_blank"><img src="'. $image['url'] .'" alt="" /></a>';
+		if(Mage::has_image()){
+			$content .= '<a href="'. Mage::product_url() .'" target="_blank"><img src="'. Mage::product_image_url() .'" alt="" /></a>';
 		}
 		
-		$content .= '<h2><a href="'. $url . $result['url_path'] .'" target="_blank">'. $result['name'] .'</a></h2>';
+		$content .= '<h2><a href="'. Mage::product_url() .'" target="_blank">' . Mage::product_title() . '</a></h2>';
 				
 		$content .= '<span class="pronamic-magento-price-box">
-			<span class="pronamic-magento-price">&euro;'. number_format($result['price'], 2) .'</span>
+			<span class="pronamic-magento-price">&euro;'. Mage::product_price() .'</span>
 		</span>
 	</li>';
 	

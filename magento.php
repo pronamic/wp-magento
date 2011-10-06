@@ -58,7 +58,7 @@ class Magento {
 			$connection = false;
 		}
 		
-		if($connection){
+		if($connection){			
 			// Template
 			$template = self::getTemplate();
 			include_once($template);
@@ -223,9 +223,10 @@ class Magento {
 		if($result){
 			if($images){
 				$image = $images[0];
+				$image = $image['url'];
 			}else{
 				unset($image);
-				$image['url'] = plugins_url('images/noimg.gif', __FILE__);
+				$image = plugins_url('images/noimg.gif', __FILE__);
 			}
 							
 			// Check if base url ends correctly (with a /)
@@ -233,9 +234,16 @@ class Magento {
 				$url .= '/';
 			}
 			
+			// Adjust resul's url path
+			$result['url_path'] = $url . $result['url_path'];
+			
+			// Included functions to make template use more easy on the user
+			include_once('templates/shortFunctions.php');
+			new Mage($result, $image);
+			
 			// The template middle part
 			try{
-				$content .= templateBody($result, $image);
+				$content .= templateBody();
 			}catch(Exception $e){	}
 		}
 		

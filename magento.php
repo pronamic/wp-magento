@@ -11,6 +11,8 @@ License: GPL
 */
 
 class Magento {
+	private static $soapClient;
+	
 	public static function bootstrap() {
 		add_action('init', array(__CLASS__, 'initialize'));
 
@@ -20,8 +22,12 @@ class Magento {
 	}
 
 	public static function initialize() {
-		echo WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/languages/';
-		load_plugin_textdomain('pronamic-magento-plugin', false, WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/languages/');
+		// Translations
+		$relPath = dirname(plugin_basename(__FILE__)) . '/languages/';
+		load_plugin_textdomain('pronamic-magento-plugin', false, $relPath);	
+
+		// Stylesheet
+		self::setStyleSheet();
 		
 		add_shortcode('magento', array(__CLASS__, 'shortcode'));
 	}
@@ -44,7 +50,7 @@ class Magento {
 
 		$connection = false;
 		try{
-			$client = new SoapClient($wsdl);
+			$client = self::getSoapClient($wsdl);
 			$session = $client->login($username, $apiKey);
 			$connection = true;
 		}catch(Exception $e){
@@ -53,14 +59,21 @@ class Magento {
 		}
 		
 		if($connection){
-			// Template and stylesheet
+			// Template
 			$template = self::getTemplate();
-			$stylesheet = self::getStyleSheet();
-			include($stylesheet);
+			include_once($template);
+			// Stylesheet
+			if(!wp_style_is('pronamic-magento-plugin-stylehseet', 'queue')){
+				wp_print_styles(array('pronamic-magento-plugin-stylesheet'));
+			}			
+			//$stylesheet = self::getStyleSheet();
+			//include_once($stylesheet);
 			
-			// Start of list
-			$content .= '<ul class="pronamic-magento-items-grid">';
-			
+			// Template wrapper.
+			try{
+				$content .= wrapTemplateStart();
+			}catch(Exception $e){	}
+				
 			// If there are ID's being parsed, do these actions.
 			if(isset($atts['pid'])) {			
 				$productIds = explode(',', $atts['pid']);
@@ -121,7 +134,7 @@ class Magento {
 				if(!empty($cat_id)){
 					// Get list of all products so we can filter out the required ones.
 					try{
-						$productlist = $client->call($session, 'catalog_pro duct.list');
+						$productlist = $client->call($session, 'catalog_product.list');
 					}catch(Exception $e){
 						$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
 					}
@@ -160,11 +173,27 @@ class Magento {
 				}
 			} // Finished walking through parsed catagories.
 			
-			// End of list
-			$content .= '</ul>';
+			// End of template wrapper
+			try{
+				$content .= wrapTemplateEnd();
+			}catch(Exception $e){	}
 		}
 		
 		return $content;
+	}
+	
+	/**
+	 * Singleton function, will check if the soapClient hasn't already
+	 * been created before. If it has, return the previously saved Object.
+	 * Otherwise, create a new soapClient Object and save it for a next time.
+	 * 
+	 * @param String $wsdl
+	 */
+	private static function getSoapClient($wsdl){		
+		if(!isset(self::$soapClient)){			
+			self::$soapClient = new SoapClient($wsdl);
+		}
+		return self::$soapClient;
 	}
 	
 	/**
@@ -204,8 +233,10 @@ class Magento {
 				$url .= '/';
 			}
 			
-			// Build a list item
-			include($template);
+			// The template middle part
+			try{
+				$content .= templateBody($result, $image);
+			}catch(Exception $e){	}
 		}
 		
 		return $content;
@@ -240,7 +271,10 @@ class Magento {
 		if($template){
 			$template = explode('/', $template);
 			$count = count($template);
-			$template = get_bloginfo('stylesheet_directory') . '/' . $template[$count-1];
+			$dir = explode('/', get_bloginfo('template_directory'));
+			$count2 = count($dir);
+			$theme = $dir[$count2-1];
+			$template = ABSPATH . '/wp-content/themes/' . $theme . '/' . $template[$count-1];
 		}else{
 			$template = 'templates/defaulttemplate.php';
 		}
@@ -249,11 +283,9 @@ class Magento {
 	}
 	
 	/**
-	 * Get the stylesheet, like the template, this plugin accepts custom css files as well.
-	 * 
-	 * @return String $stylesheet (Location to stylesheet file, custom or default)
+	 * This function will set the stylesheet (enqueue it in WP header).
 	 */
-	private static function getStyleSheet(){
+	private static function setStyleSheet(){
 		$stylesheet = '';
 		$stylesheets = array('pronamic-magento-plugin-stylesheet.css');
 		$stylesheet = locate_template($stylesheets);
@@ -261,12 +293,12 @@ class Magento {
 			$stylesheet = explode('/', $stylesheet);
 			$count = count($stylesheet);
 			$stylesheet = get_bloginfo('stylesheet_directory') . '/' . $stylesheet[$count-1];
-		}else{
-			$stylesheet = 'css/default.css';
-			//$stylesheet = plugins_url('css/default.css', __FILE__);
+		}else{			
+			$stylesheet = plugins_url('css/pronamic-magento-plugin-stylesheet.css', __FILE__);
 		}
 		
-		return $stylesheet;
+		wp_register_style('pronamic-magento-plugin-stylesheet', $stylesheet);
+		wp_enqueue_style( 'pronamic-magento-plugin-stylesheet');
 	}	
 	
 	/**

@@ -10,8 +10,6 @@ Author URI: http://pronamic.eu/
 License: GPL
 */
 
-//load_plugin_textdomain('pronamic-magento', false, "/wp-content/plugins/magento/languages/");
-
 class Magento {
 	public static function bootstrap() {
 		add_action('init', array(__CLASS__, 'initialize'));
@@ -22,6 +20,9 @@ class Magento {
 	}
 
 	public static function initialize() {
+		echo WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/languages/';
+		load_plugin_textdomain('pronamic-magento-plugin', false, WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__)).'/languages/');
+		
 		add_shortcode('magento', array(__CLASS__, 'shortcode'));
 	}
 	
@@ -47,7 +48,7 @@ class Magento {
 			$session = $client->login($username, $apiKey);
 			$connection = true;
 		}catch(Exception $e){
-			$content .= __('<pre>Magento plugin says:</pre> Unable to connect to host.', 'pronamic-magento');
+			$content .= __('Unable to connect to host.', 'pronamic-magento-plugin');
 			$connection = false;
 		}
 		
@@ -58,7 +59,7 @@ class Magento {
 			include($stylesheet);
 			
 			// Start of list
-			$content .= __('<ul class="pronamic-magento-items-grid">', 'pronamic-magento');
+			$content .= '<ul class="pronamic-magento-items-grid">';
 			
 			// If there are ID's being parsed, do these actions.
 			if(isset($atts['pid'])) {			
@@ -122,7 +123,7 @@ class Magento {
 					try{
 						$productlist = $client->call($session, 'catalog_pro duct.list');
 					}catch(Exception $e){
-						$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento');
+						$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
 					}
 					
 					// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
@@ -186,7 +187,7 @@ class Magento {
 				$images = $client->call($session, 'product_media.list', $productId);
 			}catch(Exception $e){	}
 		}catch(Exception $e){
-			$content .= __('Unable to obtain any products.', 'pronamic-magento');
+			$content .= __('Unable to obtain any products.', 'pronamic-magento-plugin');
 		}
 		
 		// Build up the obtained information (if any) and pass them on in the $content variable which will be returned.
@@ -221,7 +222,7 @@ class Magento {
 		try{
 			$result = $client->call($session, 'catalog_category.tree');	
 		}catch(Exception $e){
-			$content .= __('We\'re sorry, we were unable to obtain any categories.', 'pronamic-magento');
+			$content .= __('We\'re sorry, we were unable to obtain any categories.', 'pronamic-magento-plugin');
 		}
 		
 		return $result;

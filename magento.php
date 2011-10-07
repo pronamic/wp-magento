@@ -12,6 +12,7 @@ License: GPL
 
 class Magento {
 	private static $soapClient;
+	private static $session;
 	
 	public static function bootstrap() {
 		add_action('init', array(__CLASS__, 'initialize'));
@@ -40,58 +41,43 @@ class Magento {
 	 */
 	public static function shortcode($atts) {
 		error_reporting(E_ALL ^ E_NOTICE);
-		
 		$content = '';
-		
-		$wsdl = get_option('magento-api-wsdl');
-		$username = get_option('magento-api-username');
-		$apiKey = get_option('magento-api-key');
-		$url = get_option('magento-store-url');
 
 		$connection = false;
 		try{
+			$wsdl = get_option('magento-api-wsdl');
 			$client = self::getSoapClient($wsdl);
-			$session = $client->login($username, $apiKey);
-			$connection = true;
+			try{
+				$username = get_option('magento-api-username');
+				$apiKey = get_option('magento-api-key');
+				$session = self::getSession($username, $apiKey, $client);				
+				$connection = true;
+			}catch(Exception $e){
+				$content .= __('Unable to login to host with that username/password combination.', 'pronamic-magento-plugin');
+			}
 		}catch(Exception $e){
 			$content .= __('Unable to connect to host.', 'pronamic-magento-plugin');
 			$connection = false;
 		}
 		
-		if($connection){			
+		if($connection){
+			// Magento store url
+			$url = get_option('magento-store-url');
+			
 			// Template
 			$template = self::getTemplate();
-			include_once($template);
+			//include_once($template);
 			// Stylesheet
 			if(!wp_style_is('pronamic-magento-plugin-stylehseet', 'queue')){
 				wp_print_styles(array('pronamic-magento-plugin-stylesheet'));
 			}			
 			//$stylesheet = self::getStyleSheet();
 			//include_once($stylesheet);
-			
-			// Template wrapper.
-			try{
-				$content .= wrapTemplateStart();
-			}catch(Exception $e){	}
-				
+							
 			// If there are ID's being parsed, do these actions.
-			if(isset($atts['pid'])) {			
-				$productIds = explode(',', $atts['pid']);
-				if(count($productIds) > 1){
-					// Multiple id's parsed, loop through them.
-					foreach($productIds as $value){
-						if(!empty($value)){
-							$content .= self::getProductByID(trim($value), $client, $session, $url, $template);
-						}
-					}
-				}else{
-					// Single id parsed, pass first item in array.
-					$productId = trim($productIds[0]);
-					if(!empty($productId)){
-						$content .= self::getProductByID(trim($productId), $client, $session, $url, $template);
-					}
-				}
-			} // Finished looping through parsed ID's
+			if(isset($atts['pid'])) {
+				$content .= self::getProductsByID(explode(',', $atts['pid']), $client, $session, $url, $template);
+			}
 	
 			// Whenever shortcode 'cat' is parsed, these actions will happen.
 			if(isset($atts['cat'])){
@@ -130,7 +116,7 @@ class Magento {
 					}
 				}
 				
-				// If there's a result on our query.
+				// If there's a result on our query. (or just a numeric string was parsed)
 				if(!empty($cat_id)){
 					// Get list of all products so we can filter out the required ones.
 					try{
@@ -143,6 +129,8 @@ class Magento {
 					if($productlist){
 						$productId = '';
 						$productIds = array();
+						$i = 0;
+						$break = false;
 						foreach($productlist as $key=>$value){
 							foreach($value as $key2=>$value2){
 								if($key2 == 'product_id'){
@@ -153,34 +141,93 @@ class Magento {
 										if($value3 == $cat_id){
 											$count = count($productIds);
 											$productIds[$count] = $productId;
+											$i++;
+											if($i >= 3) $break = true;
 										}
+										if($break) break;
 									}
 								}
+								if($break) break;
 							}
+							if($break) break;
 						}
-						// Get the values from productIds in random order, then output them with getProductID()
-						$i = 0;
-						foreach($productIds as $value){					
-							$rand = array_rand($productIds);
-							$content .= self::getProductByID($productIds[$rand], $client, $session, $url, $template);
-							unset($productIds[$rand]);
-							$i++;
-							if($i >= 3){
-								break;
-							}
-						}
+						$content .= self::getProductsByID($productIds, $client, $session, $url, $template);
 					}
 				}
 			} // Finished walking through parsed catagories.
-			
-			// End of template wrapper
-			try{
-				$content .= wrapTemplateEnd();
-			}catch(Exception $e){	}
 		}
 		
 		return $content;
 	}
+	
+	/**
+	 * This function will get products and their information by ID or SKU
+	 * 
+	 * @param array[int] $productIds
+	 * @param Object $client
+	 * @param String $session
+	 * @param String $url
+	 * @param String $template
+	 */
+	public static function getProductsByID($productIds, $client, $session, $url, $template) {		
+		$content = '';
+		$result = '';
+		global $magento_products;
+		$magento_products = array();
+		
+		foreach($productIds as $value){
+			// Clean up messy input.
+			$productId = strtolower(trim($value));
+			
+			// Get product information and images from specified product ID.
+			try{
+				$result = $client->call($session, 'catalog_product.info', $productId);	
+				try{
+					$images = $client->call($session, 'product_media.list', $productId);
+				}catch(Exception $e){	}
+			}catch(Exception $e){
+				$content .= __('Unable to obtain any products.', 'pronamic-magento-plugin');
+			}
+			
+			// Build up the obtained information (if any) and pass them on in the $content variable which will be returned.
+			if($result){
+				if($images){
+					$image = $images[0];
+					$image = $image['url'];
+				}else{
+					unset($image);
+					$image = plugins_url('images/noimg.gif', __FILE__);
+				}
+								
+				// Check if base url ends correctly (with a /)
+				if($url[strlen($url)-1] != '/'){
+					$url .= '/';
+				}
+				
+				// Adjust resul's url path
+				$result['url_path'] = $url . $result['url_path'];
+				
+				// Place the result and the image in an array that will be looped through in the template. Format: array('1' => array('result' => $result, 'image' => $image))
+				$magento_products[] = array('result' => $result, 'image' => $image);
+			}
+		}
+		
+		// Included functions to make template use more easy on the user
+		include_once('templates/shortFunctions.php');
+		new Mage();
+		
+		// The template
+		try{
+			// Output buffer
+			ob_start();
+			include($template);
+			$content .= ob_get_clean();
+		}catch(Exception $e){
+			$content .= __('Detected an error in the template file, actions have been interupted.', 'pronamic-magento-plugin');
+		}
+	
+		return $content;
+	} // End of getProductByID($productId, $client, $session, $url, $template)
 	
 	/**
 	 * Singleton function, will check if the soapClient hasn't already
@@ -197,58 +244,18 @@ class Magento {
 	}
 	
 	/**
-	 * This function will get products and their information by ID or SKU
+	 * Also a Singleton function, it works exaclty like the getSoapClient() function
 	 * 
-	 * @param int $productId
+	 * @param String $username
+	 * @param String $apiKey
 	 * @param Object $client
-	 * @param String $session
-	 * @param String $url
-	 * @param String $template
 	 */
-	public static function getProductByID($productId, $client, $session, $url, $template) {
-		$content = '';
-		$result = '';
-		
-		// Get product information and images from specified product ID.
-		try{
-			$result = $client->call($session, 'catalog_product.info', $productId);	
-			try{
-				$images = $client->call($session, 'product_media.list', $productId);
-			}catch(Exception $e){	}
-		}catch(Exception $e){
-			$content .= __('Unable to obtain any products.', 'pronamic-magento-plugin');
+	private static function getSession($username, $apiKey, $client){
+		if(!isset(self::$session)){
+			self::$session = $client->login($username, $apiKey);
 		}
-		
-		// Build up the obtained information (if any) and pass them on in the $content variable which will be returned.
-		if($result){
-			if($images){
-				$image = $images[0];
-				$image = $image['url'];
-			}else{
-				unset($image);
-				$image = plugins_url('images/noimg.gif', __FILE__);
-			}
-							
-			// Check if base url ends correctly (with a /)
-			if($url[strlen($url)-1] != '/'){
-				$url .= '/';
-			}
-			
-			// Adjust resul's url path
-			$result['url_path'] = $url . $result['url_path'];
-			
-			// Included functions to make template use more easy on the user
-			include_once('templates/shortFunctions.php');
-			new Mage($result, $image);
-			
-			// The template middle part
-			try{
-				$content .= templateBody();
-			}catch(Exception $e){	}
-		}
-		
-		return $content;
-	} // End of getProductByID($productId, $client, $session, $url, $template)
+		return self::$session;
+	}
 	
 	/**
 	 * Function which returns the catagory tree.
@@ -273,17 +280,9 @@ class Magento {
 	 * @return String $template (Location to template file, custom or default)
 	 */
 	private static function getTemplate(){
-		$template = '';
 		$templates = array('pronamic-magento-plugintemplate.php');
 		$template = locate_template($templates);
-		if($template){
-			$template = explode('/', $template);
-			$count = count($template);
-			$dir = explode('/', get_bloginfo('template_directory'));
-			$count2 = count($dir);
-			$theme = $dir[$count2-1];
-			$template = ABSPATH . '/wp-content/themes/' . $theme . '/' . $template[$count-1];
-		}else{
+		if(!$template){
 			$template = 'templates/defaulttemplate.php';
 		}
 		

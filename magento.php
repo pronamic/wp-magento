@@ -20,6 +20,8 @@ class Magento {
 		add_action('admin_init', array(__CLASS__, 'adminInitialize'));
 
 		add_action('admin_menu', array(__CLASS__, 'adminMenu'));
+		
+		add_action('widgets_init', array(__CLASS__, 'sidebarWidget'));
 	}
 
 	public static function initialize() {
@@ -28,7 +30,8 @@ class Magento {
 		load_plugin_textdomain('pronamic-magento-plugin', false, $relPath);	
 
 		// Stylesheet
-		self::setStyleSheet();
+		self::setStyleSheet('plugin');
+		self::setStyleSheet('widgets');
 		
 		add_shortcode('magento', array(__CLASS__, 'shortcode'));
 	}
@@ -41,121 +44,173 @@ class Magento {
 	 */
 	public static function shortcode($atts) {
 		error_reporting(E_ALL ^ E_NOTICE);
+		$maxproducts = 3;
 		$content = '';
-
-		$connection = false;
-		try{
-			$wsdl = get_option('magento-api-wsdl');
-			$client = self::getSoapClient($wsdl);
+		$content .= self::getProductIDs($atts, $maxproducts, 'plugin');
+		
+		return $content;
+	}
+	
+	/**
+	 * This function will take care of extracting productIDs from $atts
+	 * 
+	 * @param unknown_type $atts
+	 */
+	public static function getProductIDs($atts, $maxproducts, $templatemode){
+		$runApiCalls = true;
+		
+		// Will always run, unless caching has not been enabled. If any step in this proces fails, e.g.: Outdated cache or No cache found, we will run the API calls.
+		if(get_option('magento-caching-option')){
+			// Create the class
+			include_once('CacheClass.php');
+			$CC = new CacheClass($atts, $maxproducts);
+			
 			try{
-				$username = get_option('magento-api-username');
-				$apiKey = get_option('magento-api-key');
-				$session = self::getSession($username, $apiKey, $client);				
-				$connection = true;
+				$content .= $CC->getCache();
+				$runApiCalls = false;
 			}catch(Exception $e){
-				$content .= __('Unable to login to host with that username/password combination.', 'pronamic-magento-plugin');
+				$runApiCalls = true;
 			}
-		}catch(Exception $e){
-			$content .= __('Unable to connect to host.', 'pronamic-magento-plugin');
-			$connection = false;
 		}
 		
-		if($connection){
-			// Magento store url
-			$url = get_option('magento-store-url');
+		// Only runs if no succesful cache call was made in any way.
+		if($runApiCalls){
+			// Outer output buffer, mostly there for caching
+			ob_start();
 			
-			// Template
-			$template = self::getTemplate();
-			//include_once($template);
-			// Stylesheet
-			if(!wp_style_is('pronamic-magento-plugin-stylehseet', 'queue')){
-				wp_print_styles(array('pronamic-magento-plugin-stylesheet'));
-			}			
-			//$stylesheet = self::getStyleSheet();
-			//include_once($stylesheet);
-							
-			// If there are ID's being parsed, do these actions.
-			if(isset($atts['pid'])) {
-				$content .= self::getProductsByID(explode(',', $atts['pid']), $client, $session, $url, $template);
+			// If no cache record is found
+			$connection = false;
+			try{
+				$wsdl = get_option('magento-api-wsdl');
+				$client = self::getSoapClient($wsdl);
+				try{
+					$username = get_option('magento-api-username');
+					$apiKey = get_option('magento-api-key');
+					$session = self::getSession($username, $apiKey, $client);				
+					$connection = true;
+				}catch(Exception $e){
+					$content .= __('Unable to login to host with that username/password combination.', 'pronamic-magento-plugin');
+				}
+			}catch(Exception $e){
+				$content .= __('Unable to connect to host.', 'pronamic-magento-plugin');
+				$connection = false;
 			}
-	
-			// Whenever shortcode 'cat' is parsed, these actions will happen.
-			if(isset($atts['cat'])){
-				$cat = strtolower(trim($atts['cat']));
-				$result = '';
-				$cat_id = '';
+			
+			if($connection){
+				// Magento store url
+				$url = get_option('magento-store-url');
 				
-				// Check if the inputted shortcode cat is numeric or contains a string.
-				if(is_numeric($cat)){
-					$cat_id = $cat;
-				}else{			
-					$result = self::getCatagoryList($client, $session);
+				// Template
+				$template = self::getTemplate($templatemode);
+				
+				//include_once($template);
+				// Stylesheet
+				if(!wp_style_is('pronamic-magento-plugin-stylehseet', 'queue')){
+					wp_print_styles(array('pronamic-magento-plugin-stylesheet'));
+				}			
+				//$stylesheet = self::getStyleSheet();
+				//include_once($stylesheet);
+								
+				// If there are ID's being parsed, do these actions.
+				if(isset($atts['pid'])) {
+					// Making sure no more than the wanted product id's are parsed.
+					$pids = explode(',', $atts['pid']);					
+					if(count($pids)>=$maxproducts){
+						for($i=0; $i<$maxproducts; $i++){
+							$tmp[] = $pids[$i];
+						}
+					}else{
+						$tmp = $pids;
+					}					
+					$content .= self::getProductsByID($tmp, $client, $session, $url, $template);
+				}
+		
+				// Whenever shortcode 'cat' is parsed, these actions will happen.
+				if(isset($atts['cat'])){
+					$cat = strtolower(trim($atts['cat']));
+					$result = '';
+					$cat_id = '';
 					
-					// Magento passes a wrapper array, to make it easier on the getCatagories function
-					// we throw that wrapper away here and then call the function, so we get a flat array.
-					$result = $result['children'];
-					$result = self::flattenCategories($result);
-					
-					// Loop through the flattened array to match the catagory name with the given shortcode name.
-					// When there is a mach, we need not look further so we break.
-					foreach($result as $key=>$value){
-						$tmp_id = '';
-						foreach($value as $key2=>$value2){
-							if($key2 == 'category_id'){
-								$tmp_id = $value2;
-							}							
-							if($key2 == 'name' && strtolower(trim($value2)) == $cat){
-								$cat_id = $tmp_id;
-								$break = true;
+					// Check if the inputted shortcode cat is numeric or contains a string.
+					if(is_numeric($cat)){
+						$cat_id = $cat;
+					}else{			
+						$result = self::getCatagoryList($client, $session);
+						
+						// Magento passes a wrapper array, to make it easier on the getCatagories function
+						// we throw that wrapper away here and then call the function, so we get a flat array.
+						$result = $result['children'];
+						$result = self::flattenCategories($result);
+						
+						// Loop through the flattened array to match the catagory name with the given shortcode name.
+						// When there is a mach, we need not look further so we break.
+						foreach($result as $key=>$value){
+							$tmp_id = '';
+							foreach($value as $key2=>$value2){
+								if($key2 == 'category_id'){
+									$tmp_id = $value2;
+								}							
+								if($key2 == 'name' && strtolower(trim($value2)) == $cat){
+									$cat_id = $tmp_id;
+									$break = true;
+									break;
+								}
+							}
+							if($break){
 								break;
 							}
 						}
-						if($break){
-							break;
-						}
-					}
-				}
-				
-				// If there's a result on our query. (or just a numeric string was parsed)
-				if(!empty($cat_id)){
-					// Get list of all products so we can filter out the required ones.
-					try{
-						$productlist = $client->call($session, 'catalog_product.list');
-					}catch(Exception $e){
-						$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
 					}
 					
-					// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
-					if($productlist){
-						$productId = '';
-						$productIds = array();
-						$i = 0;
-						$break = false;
-						foreach($productlist as $key=>$value){
-							foreach($value as $key2=>$value2){
-								if($key2 == 'product_id'){
-									$productId = $value2;
-								}
-								if($key2 == 'category_ids'){
-									foreach($value2 as $value3){
-										if($value3 == $cat_id){
-											$count = count($productIds);
-											$productIds[$count] = $productId;
-											$i++;
-											if($i >= 3) $break = true;
-										}
-										if($break) break;
+					// If there's a result on our query. (or just a numeric string was parsed)
+					if(!empty($cat_id)){
+						// Get list of all products so we can filter out the required ones.
+						try{
+							$productlist = $client->call($session, 'catalog_product.list');
+						}catch(Exception $e){
+							$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
+						}
+						
+						// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
+						if($productlist){
+							$productId = '';
+							$productIds = array();
+							$i = 0;
+							$break = false;
+							foreach($productlist as $key=>$value){
+								foreach($value as $key2=>$value2){
+									if($key2 == 'product_id'){
+										$productId = $value2;
 									}
+									if($key2 == 'category_ids'){
+										foreach($value2 as $value3){
+											if($value3 == $cat_id){
+												$count = count($productIds);
+												$productIds[$count] = $productId;
+												$i++;
+												if($i >= $maxproducts) $break = true;
+											}
+											if($break) break;
+										}
+									}
+									if($break) break;
 								}
 								if($break) break;
 							}
-							if($break) break;
+							$content .= self::getProductsByID($productIds, $client, $session, $url, $template);
 						}
-						$content .= self::getProductsByID($productIds, $client, $session, $url, $template);
 					}
-				}
-			} // Finished walking through parsed catagories.
-		}
+				} // Finished walking through parsed catagories.
+			}
+			
+			// End of outer output buffer. This could be saved to the cachefiles.
+			$bufferoutput = ob_get_clean();
+			$content .= $bufferoutput;
+			//var_dump($bufferoutput) . 'hallo';
+			if(get_option('magento-caching-option')){
+				$CC->storeCache($bufferoutput);
+			}
+		}// End of API calls.
 		
 		return $content;
 	}
@@ -168,6 +223,8 @@ class Magento {
 	 * @param String $session
 	 * @param String $url
 	 * @param String $template
+	 * @param Object $CC
+	 * @return String $content
 	 */
 	public static function getProductsByID($productIds, $client, $session, $url, $template) {		
 		$content = '';
@@ -219,9 +276,11 @@ class Magento {
 		// The template
 		try{
 			// Output buffer
-			ob_start();
+			//ob_start();
 			include($template);
-			$content .= ob_get_clean();
+			//$innerbufferoutput = ob_get_clean();
+			//$content .= $innerbufferoutput;
+			// When user allows caching, do so because it's a lot of fun.
 		}catch(Exception $e){
 			$content .= __('Detected an error in the template file, actions have been interupted.', 'pronamic-magento-plugin');
 		}
@@ -279,11 +338,12 @@ class Magento {
 	 * 
 	 * @return String $template (Location to template file, custom or default)
 	 */
-	private static function getTemplate(){
-		$templates = array('pronamic-magento-plugintemplate.php');
+	private static function getTemplate($templatemode){
+		if(empty($templatemode)) $templatemode = 'plugin';
+		$templates = array('pronamic-magento-'.$templatemode.'template.php');
 		$template = locate_template($templates);
 		if(!$template){
-			$template = 'templates/defaulttemplate.php';
+			$template = 'templates/pronamic-magento-'.$templatemode.'template.php';
 		}
 		
 		return $template;
@@ -292,20 +352,16 @@ class Magento {
 	/**
 	 * This function will set the stylesheet (enqueue it in WP header).
 	 */
-	private static function setStyleSheet(){
+	private static function setStyleSheet($templatemode){
+		if(empty($templatemode)) $templatemode = 'plugin';
 		$stylesheet = '';
-		$stylesheets = array('pronamic-magento-plugin-stylesheet.css');
-		$stylesheet = locate_template($stylesheets);
-		if($stylesheet){
-			$stylesheet = explode('/', $stylesheet);
-			$count = count($stylesheet);
-			$stylesheet = get_bloginfo('stylesheet_directory') . '/' . $stylesheet[$count-1];
-		}else{			
-			$stylesheet = plugins_url('css/pronamic-magento-plugin-stylesheet.css', __FILE__);
+		$stylesheet = get_bloginfo('stylesheet_directory') . '/' . 'pronamic-magento-'.$templatemode.'-stylesheet.css';
+		if(!file_exists($stylesheet)){
+			$stylesheet = plugins_url('css/pronamic-magento-'.$templatemode.'-stylesheet.css', __FILE__);
 		}
 		
-		wp_register_style('pronamic-magento-plugin-stylesheet', $stylesheet);
-		wp_enqueue_style( 'pronamic-magento-plugin-stylesheet');
+		wp_register_style('pronamic-magento-'.$templatemode.'-stylesheet', $stylesheet);
+		wp_enqueue_style( 'pronamic-magento-'.$templatemode.'-stylesheet');
 	}	
 	
 	/**
@@ -352,9 +408,11 @@ class Magento {
 	public static function adminInitialize() {
 		// Settings
 		register_setting('magento', 'magento-api-wsdl');
+		register_setting('magento', 'magento-store-url');
 		register_setting('magento', 'magento-api-username');
 		register_setting('magento', 'magento-api-key');
-		register_setting('magento', 'magento-store-url');
+		register_setting('magento', 'magento-caching-option');
+		register_setting('magento', 'magento-caching-time');
 
 		// Styles
 		wp_enqueue_style(
@@ -392,6 +450,11 @@ class Magento {
 			$menuSlug = 'magento-settings' , 
 			$function = array(__CLASS__, 'pageSettings')
 		);
+	}
+	
+	public static function sidebarWidget(){
+		include_once('sidebarWidget.php');
+		register_widget('sidebarWidget');
 	}
 
 	public static function page() {

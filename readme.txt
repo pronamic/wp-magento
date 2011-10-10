@@ -25,7 +25,8 @@ WordPress installation and then activate the Plugin from Plugins page.
 *	Made multiple 'pid' input possible. Comma seperated.
 *	Added shortcode 'cat'. Input a String with a category name to get a fixed number of three random (or less if there are less than three products with this category) products.
 *	Shortcode 'cat' accepts category_id (int) now as well, which is faster.
-
+*	Caching added. Caching can be switched on or off in the settings, also setting caching time is possible.
+*	Made plugin available as widget.
 
 == Links ==
 

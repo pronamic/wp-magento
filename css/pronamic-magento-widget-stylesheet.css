@@ -1,0 +1,23 @@
+.pronamic-magento-items-grid {
+	list-style:none;
+			
+	margin:0;
+	padding:0
+}
+		
+.pronamic-magento-items-grid li {
+	float:left;
+	
+	margin:0 5px;
+	
+	max-width: 180px;
+}
+
+.pronamic-magento-items-grid li img {
+	border:solid 0px #000;
+	
+	min-height: 130px;
+	max-height: 130px;
+	
+	padding:1px
+}

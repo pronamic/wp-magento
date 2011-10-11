@@ -44,9 +44,8 @@ class Magento {
 	 */
 	public static function shortcode($atts) {
 		error_reporting(E_ALL ^ E_NOTICE);
-		$maxproducts = 3;
 		$content = '';
-		$content .= self::getProductIDs($atts, $maxproducts, 'plugin');
+		$content .= self::getProductOutput($atts, 0, 'plugin');
 		
 		return $content;
 	}
@@ -54,9 +53,10 @@ class Magento {
 	/**
 	 * This function will take care of extracting productIDs from $atts
 	 * 
-	 * @param unknown_type $atts
+	 * @param mixed array $atts
 	 */
-	public static function getProductIDs($atts, $maxproducts, $templatemode){
+	public static function getProductOutput($atts, $maxproducts, $templatemode){
+		$content = '';
 		$runApiCalls = true;
 		
 		// Will always run, unless caching has not been enabled. If any step in this proces fails, e.g.: Outdated cache or No cache found, we will run the API calls.
@@ -75,144 +75,209 @@ class Magento {
 		
 		// Only runs if no succesful cache call was made in any way.
 		if($runApiCalls){
-			// Outer output buffer, mostly there for caching
+			// Output buffer, mostly there for caching
 			ob_start();
 			
-			// If no cache record is found
-			$connection = false;
-			try{
-				$wsdl = get_option('magento-api-wsdl');
-				$client = self::getSoapClient($wsdl);
-				try{
-					$username = get_option('magento-api-username');
-					$apiKey = get_option('magento-api-key');
-					$session = self::getSession($username, $apiKey, $client);				
-					$connection = true;
-				}catch(Exception $e){
-					$content .= __('Unable to login to host with that username/password combination.', 'pronamic-magento-plugin');
-				}
-			}catch(Exception $e){
-				$content .= __('Unable to connect to host.', 'pronamic-magento-plugin');
-				$connection = false;
-			}
-			
-			if($connection){
-				// Magento store url
-				$url = get_option('magento-store-url');
-				
-				// Template
-				$template = self::getTemplate($templatemode);
-				
-				//include_once($template);
-				// Stylesheet
-				if(!wp_style_is('pronamic-magento-plugin-stylehseet', 'queue')){
-					wp_print_styles(array('pronamic-magento-plugin-stylesheet'));
-				}			
-				//$stylesheet = self::getStyleSheet();
-				//include_once($stylesheet);
-								
-				// If there are ID's being parsed, do these actions.
-				if(isset($atts['pid'])) {
-					// Making sure no more than the wanted product id's are parsed.
-					$pids = explode(',', $atts['pid']);					
-					if(count($pids)>=$maxproducts){
-						for($i=0; $i<$maxproducts; $i++){
-							$tmp[] = $pids[$i];
-						}
-					}else{
-						$tmp = $pids;
-					}					
-					$content .= self::getProductsByID($tmp, $client, $session, $url, $template);
-				}
-		
-				// Whenever shortcode 'cat' is parsed, these actions will happen.
-				if(isset($atts['cat'])){
-					$cat = strtolower(trim($atts['cat']));
-					$result = '';
-					$cat_id = '';
-					
-					// Check if the inputted shortcode cat is numeric or contains a string.
-					if(is_numeric($cat)){
-						$cat_id = $cat;
-					}else{			
-						$result = self::getCatagoryList($client, $session);
-						
-						// Magento passes a wrapper array, to make it easier on the getCatagories function
-						// we throw that wrapper away here and then call the function, so we get a flat array.
-						$result = $result['children'];
-						$result = self::flattenCategories($result);
-						
-						// Loop through the flattened array to match the catagory name with the given shortcode name.
-						// When there is a mach, we need not look further so we break.
-						foreach($result as $key=>$value){
-							$tmp_id = '';
-							foreach($value as $key2=>$value2){
-								if($key2 == 'category_id'){
-									$tmp_id = $value2;
-								}							
-								if($key2 == 'name' && strtolower(trim($value2)) == $cat){
-									$cat_id = $tmp_id;
-									$break = true;
-									break;
-								}
-							}
-							if($break){
-								break;
-							}
-						}
-					}
-					
-					// If there's a result on our query. (or just a numeric string was parsed)
-					if(!empty($cat_id)){
-						// Get list of all products so we can filter out the required ones.
-						try{
-							$productlist = $client->call($session, 'catalog_product.list');
-						}catch(Exception $e){
-							$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
-						}
-						
-						// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
-						if($productlist){
-							$productId = '';
-							$productIds = array();
-							$i = 0;
-							$break = false;
-							foreach($productlist as $key=>$value){
-								foreach($value as $key2=>$value2){
-									if($key2 == 'product_id'){
-										$productId = $value2;
-									}
-									if($key2 == 'category_ids'){
-										foreach($value2 as $value3){
-											if($value3 == $cat_id){
-												$count = count($productIds);
-												$productIds[$count] = $productId;
-												$i++;
-												if($i >= $maxproducts) $break = true;
-											}
-											if($break) break;
-										}
-									}
-									if($break) break;
-								}
-								if($break) break;
-							}
-							$content .= self::getProductsByID($productIds, $client, $session, $url, $template);
-						}
-					}
-				} // Finished walking through parsed catagories.
-			}
+			$content .= self::getAPIResults($atts, $maxproducts, $templatemode);
 			
 			// End of outer output buffer. This could be saved to the cachefiles.
 			$bufferoutput = ob_get_clean();
 			$content .= $bufferoutput;
-			//var_dump($bufferoutput) . 'hallo';
+			
 			if(get_option('magento-caching-option')){
 				$CC->storeCache($bufferoutput);
 			}
 		}// End of API calls.
 		
 		return $content;
+	}
+	
+	/**
+	 * No usable cache files were found, get the results from the API
+	 * 
+	 * @param mixed array $atts
+	 * @param int $maxproducts
+	 * @param String $templatemode
+	 */
+	public static function getAPIResults($atts, $maxproducts, $templatemode){
+		$content = '';
+		
+		// If no cache record is found
+		$connection = false;
+		try{
+			$wsdl = get_option('magento-api-wsdl');
+			$client = self::getSoapClient($wsdl);
+			try{
+				$username = get_option('magento-api-username');
+				$apiKey = get_option('magento-api-key');
+				$session = self::getSession($username, $apiKey, $client);				
+				$connection = true;
+			}catch(Exception $e){
+				$content .= __('Unable to login to host with that username/password combination.', 'pronamic-magento-plugin');
+			}
+		}catch(Exception $e){
+			$content .= __('Unable to connect to host.', 'pronamic-magento-plugin');
+			$connection = false;
+		}
+		
+		if($connection){
+			// Magento store url
+			$url = get_option('magento-store-url');
+			
+			// Template
+			$template = self::getTemplate($templatemode);
+			
+			// Style
+			if(!wp_style_is('pronamic-magento-plugin-stylehseet', 'queue')){
+				wp_print_styles(array('pronamic-magento-plugin-stylesheet'));
+			}
+			
+			$productIds = self::getProductIDsFromAtts($atts, $client, $session);
+			if(!empty($productIds)){
+				$content .= self::getProductsByID($productIds, $client, $session, $url, $template);
+			}
+		}
+		return $content;
+	}
+	
+	/**
+	 * Gets the productIds belonging to the requested products in the $atts variable.
+	 * Returns them in an array that is suitable for use in self::getProductsByID()
+	 * 
+	 * @param mixed array $atts
+	 * @param Object $client
+	 * @param String $session
+	 * @return array of ints $productIds
+	 */
+	private static function getProductIDsFromAtts($atts, $client, $session){						
+		$productIds = array();
+		
+		// If there are ID's being parsed, do these actions.
+		if(isset($atts['pid'])){
+			// Making sure no more than the wanted product id's are parsed.
+			$pids = explode(',', $atts['pid']);
+			if($maxproducts > 0){				
+				$pids = array_slice($pids, -$maxproducts);
+			}
+			foreach($pids as $value){
+				$productIds[] = $value;
+			}
+		}
+
+		// Whenever shortcode 'cat' is parsed, these actions will happen.
+		if(isset($atts['cat'])){
+			$cat = strtolower(trim($atts['cat']));
+			$result = '';
+			$cat_id = '';
+			
+			// Check if the inputted shortcode cat is numeric or contains a string.
+			if(is_numeric($cat)){
+				$cat_id = $cat;
+			}else{			
+				$result = self::getCatagoryList($client, $session);
+				
+				// Magento passes a wrapper array, to make it easier on the getCatagories function
+				// we throw that wrapper away here and then call the function, so we get a flat array.
+				$result = $result['children'];
+				$result = self::flattenCategories($result);
+				
+				// Loop through the flattened array to match the catagory name with the given shortcode name.
+				// When there is a mach, we need not look further so we break.
+				foreach($result as $key=>$value){
+					$tmp_id = '';
+					foreach($value as $key2=>$value2){
+						if($key2 == 'category_id'){
+							$tmp_id = $value2;
+						}							
+						if($key2 == 'name' && strtolower(trim($value2)) == $cat){
+							$cat_id = $tmp_id;
+							$break = true;
+							break;
+						}
+					}
+					if($break){
+						break;
+					}
+				}
+			}
+			
+			// If there's a result on our query. (or just a numeric string was parsed)
+			if(!empty($cat_id)){
+				// Get list of all products so we can filter out the required ones.
+				try{
+					$productlist = $client->call($session, 'catalog_product.list');
+				}catch(Exception $e){
+					$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
+				}
+				
+				// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
+				if($productlist){
+					$productId = '';
+					$i = 0;
+					$break = false;
+					foreach($productlist as $key=>$value){
+						foreach($value as $key2=>$value2){
+							if($key2 == 'product_id'){
+								$productId = $value2;
+							}
+							if($key2 == 'category_ids'){
+								foreach($value2 as $value3){
+									if($value3 == $cat_id){
+										$productIds[] = $productId;
+										$i++;
+										if($maxproducts > 0 && $i >= $maxproducts) $break = true;
+									}
+									if($break) break;
+								}
+							}
+							if($break) break;
+						}
+						if($break) break;
+					}
+				}
+			}
+		} // Finished walking through parsed catagories.
+		
+		// Sort products by date
+		if(isset($atts['latest'])){
+			$result = self::getProductList($client, $session);
+			if(!empty($result)){
+				$pids = array();
+				foreach($result as $value){
+					$pids[] = $value['product_id'];
+				}
+				
+				$products = self::getProductListByIDs($pids, $client, $session);
+				if(!empty($products)){
+					$datearray = array();
+					foreach($products as $value){
+						$datearray[$value['product_id']] = preg_replace('/[^a-z0-9]/', '', $value['created_at']);
+					}
+					
+					$tmp = $datearray;
+					sort($tmp);
+					$tmp = array_reverse($tmp);
+					
+					$maxproducts = $atts['latest'];
+					if(is_numeric($maxproducts)){
+						if($maxproducts == 0){
+							$neededdates = $tmp;
+						}else{
+							$neededdates = array_slice($tmp, -$maxproducts);
+						}
+						
+						foreach($datearray as $key=>$value){
+							foreach($neededdates as $value2){
+								if($value2 == $value){
+									$productIds[] = $key;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return $productIds;
 	}
 	
 	/**
@@ -223,7 +288,6 @@ class Magento {
 	 * @param String $session
 	 * @param String $url
 	 * @param String $template
-	 * @param Object $CC
 	 * @return String $content
 	 */
 	public static function getProductsByID($productIds, $client, $session, $url, $template) {		
@@ -275,12 +339,7 @@ class Magento {
 		
 		// The template
 		try{
-			// Output buffer
-			//ob_start();
 			include($template);
-			//$innerbufferoutput = ob_get_clean();
-			//$content .= $innerbufferoutput;
-			// When user allows caching, do so because it's a lot of fun.
 		}catch(Exception $e){
 			$content .= __('Detected an error in the template file, actions have been interupted.', 'pronamic-magento-plugin');
 		}
@@ -317,13 +376,49 @@ class Magento {
 	}
 	
 	/**
+	 * Returns a list of all products.
+	 * 
+	 * @param String $apiKey
+	 * @param Object $client
+	 */
+	private static function getProductList($client, $session){
+		$result = '';
+		try{
+			$result = $client->call($session, 'catalog_product.list');
+		}catch(Exception $e){	}
+		
+		return $result;
+	}
+	
+	/**
+	 * Accepts an array of ints, which it passes one at a time
+	 * to get all products into a new array.
+	 * 
+	 * @param array of ints $productids
+	 * @param Object $client
+	 * @param String $session
+	 */
+	private static function getProductListByIDs($productIds, $client, $session){
+		$result = '';
+		$array = array();
+		foreach($productIds as $productId){
+			try{
+				$result = $client->call($session, 'catalog_product.info', $productId);
+				$array[] = $result;
+			}catch(Exception $e){	}
+		}
+		
+		return $array;
+	}
+	
+	/**
 	 * Function which returns the catagory tree.
 	 * 
 	 * @param Object $client
 	 * @param String $session
 	 */
 	private static function getCatagoryList($client, $session){
-		// Get all categories so we can search for the wanted one.
+		$result = '';
 		try{
 			$result = $client->call($session, 'catalog_category.tree');	
 		}catch(Exception $e){
@@ -423,29 +518,20 @@ class Magento {
 
 	public static function adminMenu() {
 		add_menu_page(
-			$pageTitle = 'Magento' , 
-			$menuTitle = 'Magento' , 
+			$pageTitle = __('Magento', 'pronamic-magento-plugin') , 
+			$menuTitle = __('Magento', 'pronamic-magento-plugin') , 
 			$capability = 'manage_options' , 
 			$menuSlug = __FILE__ , 
 			$function = array(__CLASS__, 'page') , 
 			$iconUrl = plugins_url('images/icon-16x16.png', __FILE__)
 		);
 		
-		add_submenu_page(
-			$parentSlug = __FILE__ ,
-			$pageTitle = 'Blokken' , 
-			$menuTitle = 'Blokken' , 
-			$capability = 'manage_options' , 
-			$menuSlug = 'magento-blokken' , 
-			$function = array(__CLASS__, 'blocks')
-		);
-
 		// @see _add_post_type_submenus()
 		// @see wp-admin/menu.php
 		add_submenu_page(
 			$parentSlug = __FILE__ , 
-			$pageTitle = 'Settings' , 
-			$menuTitle = 'Settings' , 
+			$pageTitle = __('Settings', 'pronamic-magento-plugin') , 
+			$menuTitle = __('Settings', 'pronamic-magento-plugin') , 
 			$capability = 'manage_options' , 
 			$menuSlug = 'magento-settings' , 
 			$function = array(__CLASS__, 'pageSettings')

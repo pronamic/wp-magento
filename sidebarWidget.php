@@ -22,8 +22,18 @@ class sidebarWidget extends WP_Widget{
 	 */
 	public function form($instance) {
 		// outputs the options form on admin
-		$defaults = array('pid' => '', 'cat' => '', 'maxproducts' => 2, 'septemp' => 1);
+		$defaults = array('mode' => 'latestproducts', 'pid' => '', 'cat' => '', 'maxproducts' => 2, 'septemp' => 1);
 		$instance = wp_parse_args((array) $instance, $defaults); ?>
+
+		<p>
+			<label for="<?php echo $this->get_field_id('mode'); ?>"><?php _e('Show mode:', 'pronamic-magento-plugin'); ?></label>
+			<select class="fat" id="<?php echo $this->get_field_id('mode'); ?>" name="<?php echo $this->get_field_name('mode'); ?>">
+				<option <?php if($instance['mode'] == 'latestproducts') echo 'selected="selected"'; ?> value="latestproducts"><?php _e('Show latest products', 'pronamic-magento-plugin'); ?></option>
+				<option <?php if($instance['mode'] == 'custom') echo 'selected="selected"'; ?> value="custom"><?php _e('Show custom list of products', 'pronamic-magento-plugin'); ?></option>
+			</select>
+		</p>
+		
+		<?php if($instance['mode'] == 'custom'): ?>
 
 		<p>
 			<label for="<?php echo $this->get_field_id('pid'); ?>"><?php _e('Product ID\'s or SKU\'s (Comma separated):', 'pronamic-magento-plugin'); ?></label>
@@ -31,14 +41,18 @@ class sidebarWidget extends WP_Widget{
 		</p>
 		
 		<p>
-			<label for="<?php echo $this->get_field_id('pid'); ?>"><?php _e('Category name or ID:', 'pronamic-magento-plugin'); ?></label>
+			<label for="<?php echo $this->get_field_id('cat'); ?>"><?php _e('Category name or ID:', 'pronamic-magento-plugin'); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id('cat'); ?>" name="<?php echo $this->get_field_name('cat'); ?>" value="<?php echo $instance['cat']; ?>" style="width:100%;" />
 		</p>
+		
+		<?php elseif($instance['mode'] == 'latestproducts'): ?>
 		
 		<p>
 			<label for="<?php echo $this->get_field_id('maxproducts'); ?>"><?php _e('Number of products shown', 'pronamic-magento-plugin'); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id('maxproducts'); ?>" name="<?php echo $this->get_field_name('maxproducts'); ?>" value="<?php echo $instance['maxproducts']; ?>" style="width:100%" />
 		</p>
+		
+		<?php endif; ?>
 		
 		<p>
 			<label for="<?php echo $this->get_field_id('septemp'); ?>"><?php _e('Use separate template', 'pronamic-magento-plugin'); ?></label>
@@ -61,8 +75,11 @@ class sidebarWidget extends WP_Widget{
 		// processes widget options to be saved
 		$instance = $old_instance;
 
+		$instance['mode'] = $new_instance['mode'];
 		$instance['pid'] = strip_tags($new_instance['pid']); 
 		$instance['cat'] = strip_tags($new_instance['cat']);
+		
+		if(!is_numeric(strip_tags($new_instance['maxproducts']))) $new_instance['maxproducts'] = 3;
 		$instance['maxproducts'] = strip_tags($new_instance['maxproducts']);
 		$instance['septemp'] = $new_instance['septemp'];
 
@@ -77,12 +94,18 @@ class sidebarWidget extends WP_Widget{
 	 */
 	public function widget($args, $instance) {
 		error_reporting(E_ALL ^ E_NOTICE);
-		// outputs the content of the widget
+
+		// Determine wether the widget or the plugin template should be used.
 		$templatemode = null;
 		if($instance['septemp']) $templatemode = 'widget';
 		
+		// Different mode is different outcome
 		$content = '';
-		$content .= magento::getProductIDs(array('pid'=>$instance['pid'], 'cat'=>$instance['cat']), $instance['maxproducts'], $templatemode);
+		if($instance['mode'] == 'latestproducts'){	
+			$content .= magento::getProductOutput(array('latest'=>$instance['maxproducts']), 0, $templatemode);
+		}elseif($instance['mode'] == 'custom'){
+			$content .= magento::getProductOutput(array('pid'=>$instance['pid'], 'cat'=>$instance['cat']), $instance['maxproducts'], $templatemode);
+		}		
 		
 		echo $content;
 	}

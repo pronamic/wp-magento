@@ -27,6 +27,7 @@ WordPress installation and then activate the Plugin from Plugins page.
 *	Shortcode 'cat' accepts category_id (int) now as well, which is faster.
 *	Caching added. Caching can be switched on or off in the settings, also setting caching time is possible.
 *	Made plugin available as widget.
+*	New shortcode latest='$numberofshownproducts' implemented specifically for the widget, but useable for the shortcode as well. Shows latest $number of products. If no number is given (string, array or boolean put in), no products will be shown.
 
 == Links ==
 

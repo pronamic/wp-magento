@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pronamic Magento Plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-12 10:59+0100\n"
-"PO-Revision-Date: 2011-10-12 11:00+0100\n"
+"POT-Creation-Date: 2011-10-12 11:50+0100\n"
+"PO-Revision-Date: 2011-10-12 11:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: Pronamic <info@pronamic.nl>\n"
 "MIME-Version: 1.0\n"
@@ -56,37 +56,37 @@ msgstr "Aantal getoonde nieuwste producten"
 msgid "Use separate template"
 msgstr "Gebruik afgescheiden template"
 
-#: magento.php:115
+#: magento.php:120
 msgid "Unable to login to host with that username/password combination."
 msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host met de huidige gebruikersnaam/wachtwoord combinatie."
 
-#: magento.php:118
+#: magento.php:123
 msgid "Unable to connect to host."
 msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host."
 
-#: magento.php:211
+#: magento.php:214
 msgid "We're sorry, we weren't able to find any products with the queried category id."
 msgstr "Het spijt ons, de plugin was niet in staat producten te vinden met de gevraagde ID's"
 
-#: magento.php:326
+#: magento.php:320
 msgid "Unable to obtain any products."
 msgstr "Het spijt ons, de plugin was niet in staat producten op te halen."
 
-#: magento.php:362
+#: magento.php:356
 msgid "Detected an error in the template file, actions have been interupted."
 msgstr "Er is een fout aangetroffen in het template bestand, de acties zijn onderbroken."
 
-#: magento.php:444
+#: magento.php:438
 msgid "We're sorry, we were unable to obtain any categories."
 msgstr "Het spijt ons, de plugin was niet in staat de categorie&#235;n op te halen."
 
-#: magento.php:540
-#: magento.php:541
+#: magento.php:533
+#: magento.php:534
 msgid "Magento"
 msgstr "Magento"
 
-#: magento.php:552
-#: magento.php:553
+#: magento.php:545
+#: magento.php:546
 msgid "Settings"
 msgstr "Instellingen"
 

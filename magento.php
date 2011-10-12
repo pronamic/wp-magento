@@ -154,86 +154,90 @@ class Magento {
 		
 		// If there are ID's being parsed, do these actions.
 		if(isset($atts['pid'])){
-			// Making sure no more than the wanted product id's are parsed.
-			$pids = explode(',', $atts['pid']);
-			if($maxproducts > 0){				
-				$pids = array_slice($pids, -$maxproducts);
-			}
-			foreach($pids as $value){
-				$productIds[] = $value;
+			if(!empty($atts['pid'])){
+				// Making sure no more than the wanted product id's are parsed.
+				$pids = explode(',', $atts['pid']);
+				if($maxproducts > 0){				
+					$pids = array_slice($pids, -$maxproducts);
+				}
+				foreach($pids as $value){
+					$productIds[] = $value;
+				}
 			}
 		}
 
 		// Whenever shortcode 'cat' is parsed, these actions will happen.
 		if(isset($atts['cat'])){
-			$cat = strtolower(trim($atts['cat']));
-			$result = '';
-			$cat_id = '';
-			
-			// Check if the inputted shortcode cat is numeric or contains a string.
-			if(is_numeric($cat)){
-				$cat_id = $cat;
-			}else{			
-				$result = self::getCatagoryList($client, $session);
+			if(!empty($atts['cat'])){
+				$cat = strtolower(trim($atts['cat']));
+				$result = '';
+				$cat_id = '';
 				
-				// Magento passes a wrapper array, to make it easier on the getCatagories function
-				// we throw that wrapper away here and then call the function, so we get a flat array.
-				$result = $result['children'];
-				$result = self::flattenCategories($result);
-				
-				// Loop through the flattened array to match the catagory name with the given shortcode name.
-				// When there is a mach, we need not look further so we break.
-				foreach($result as $key=>$value){
-					$tmp_id = '';
-					$break = false;
-					foreach($value as $key2=>$value2){
-						if($key2 == 'category_id'){
-							$tmp_id = $value2;
-						}						
-						if($key2 == 'name' && strtolower(trim($value2)) == $cat){
-							$cat_id = $tmp_id;
-							$break = true;
-							break;
-						}						
-					}
-					if($break){
-						break;
-					}
-				}
-			}
-			
-			// If there's a result on our query. (or just a numeric string was parsed)
-			if(!empty($cat_id)){
-				// Get list of all products so we can filter out the required ones.
-				try{
-					$productlist = $client->call($session, 'catalog_product.list');
-				}catch(Exception $e){
-					$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
-				}
-				
-				// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
-				if($productlist){
-					$productId = '';
-					$i = 0;
-					$break = false;
-					foreach($productlist as $key=>$value){
+				// Check if the inputted shortcode cat is numeric or contains a string.
+				if(is_numeric($cat)){
+					$cat_id = $cat;
+				}else{			
+					$result = self::getCatagoryList($client, $session);
+					
+					// Magento passes a wrapper array, to make it easier on the getCatagories function
+					// we throw that wrapper away here and then call the function, so we get a flat array.
+					$result = $result['children'];
+					$result = self::flattenCategories($result);
+					
+					// Loop through the flattened array to match the catagory name with the given shortcode name.
+					// When there is a mach, we need not look further so we break.
+					foreach($result as $key=>$value){
+						$tmp_id = '';
+						$break = false;
 						foreach($value as $key2=>$value2){
-							if($key2 == 'product_id'){
-								$productId = $value2;
-							}
-							if($key2 == 'category_ids'){
-								foreach($value2 as $value3){
-									if($value3 == $cat_id){
-										$productIds[] = $productId;
-										$i++;
-										if($maxproducts > 0 && $i >= $maxproducts) $break = true;
-									}
-									if($break) break;
+							if($key2 == 'category_id'){
+								$tmp_id = $value2;
+							}						
+							if($key2 == 'name' && strtolower(trim($value2)) == $cat){
+								$cat_id = $tmp_id;
+								$break = true;
+								break;
+							}						
+						}
+						if($break){
+							break;
+						}
+					}
+				}
+				
+				// If there's a result on our query. (or just a numeric string was parsed)
+				if(!empty($cat_id)){
+					// Get list of all products so we can filter out the required ones.
+					try{
+						$productlist = $client->call($session, 'catalog_product.list');
+					}catch(Exception $e){
+						$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
+					}
+					
+					// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
+					if($productlist){
+						$productId = '';
+						$i = 0;
+						$break = false;
+						foreach($productlist as $key=>$value){
+							foreach($value as $key2=>$value2){
+								if($key2 == 'product_id'){
+									$productId = $value2;
 								}
+								if($key2 == 'category_ids'){
+									foreach($value2 as $value3){
+										if($value3 == $cat_id){
+											$productIds[] = $productId;
+											$i++;
+											if($maxproducts > 0 && $i >= $maxproducts) $break = true;
+										}
+										if($break) break;
+									}
+								}
+								if($break) break;
 							}
 							if($break) break;
 						}
-						if($break) break;
 					}
 				}
 			}
@@ -282,16 +286,6 @@ class Magento {
 				}
 			}
 		}// Finished walking through last articles
-		
-		if(isset($atts['test'])){
-			try{
-				$result = $client->call($session, 'country.list');
-			}catch(Exception $e){ echo 'faal'; }
-			echo 'test location <br /><br />';
-			if(isset($result)){
-				var_dump($result);
-			}
-		}
 		
 		return $productIds;
 	}

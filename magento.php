@@ -31,7 +31,7 @@ class Magento {
 
 		// Stylesheet
 		self::setStyleSheet('plugin');
-		self::setStyleSheet('widgets');
+		self::setStyleSheet('widget');
 		
 		add_shortcode('magento', array(__CLASS__, 'shortcode'));
 	}

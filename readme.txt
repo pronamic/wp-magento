@@ -9,13 +9,133 @@ Integrate Magento content into your WordPress website.
 
 == Description ==
 
-...
+This plugin makes it possible to show products from your Magento store on your WordPress
+website. You can either show your products with a shortcode on your pages or in posts or 
+using the widget to show it in the sidebar. An ideal solution for Magento store owners 
+who'd like to advertise their products on their WordPress website.
 
 
 == Installation ==
 
 Extract the zip file and just drop the contents in the wp-content/plugins/ directory of your 
-WordPress installation and then activate the Plugin from Plugins page.
+WordPress installation and then activate the Plugin from Plugins page. 
+
+After avtivating the plugin, you should see a Magento tab in your admin menu. Go there and
+click settings. On this page there are a few settings that need to be set. 
+
+The first field should be set to your store's WSDL for most sites this would be 
+'http://yourdomain.extension/api/soap/?wsdl' where you should replace 'yourdomain.extension' 
+with your store's domain. For example: 'magentostore.com'. 
+
+The store URL should be similar to 'http://magentostore.com/', there should be nothing 
+behind the last trailing slash.
+
+Before you can set the username and API key field you'll need to have created a webservices
+account in your Magento store Admin Panel. To do this, go to your Admin Panel and go to
+'System' -> 'Webservices' -> 'Users'. Here you can create a new user (there's your user name).
+The user's password will be the API key. Now fill out the username and API key field.
+
+Lastly, the caching option. If you set caching to 'Yes', you will notice a much shorter page
+loading time once the cache has been saved.
+
+
+== User instructions ==
+
+When you have configured the plugin correctly (as described above), you'll be able to
+contact your Magento store and start showing some products on your WordPress site.
+This short guide will show you how to use both the plugin and the widget of our plugin.
+
+= User instructions - For showing products in posts/pages =
+To show your products in one of your posts or pages you can write a line of shortcode into it.
+Where ever you write the line of shortcode in your post or page, the products will apear. A
+piece of shortcode would look a bit like the following:
+
+[magento pid='' cat='' latest='']
+
+This shortcode will not show any products yet, because we haven't set any of the values yet.
+Lets say we have two products, a t-shirt with product ID 1 and a pair of pants with product 
+ID 2. We would like to show the pair of pants we're selling in one of our posts, the shortcode
+for this would like like this:
+
+[magento pid='2']
+
+We now see that 'pid' stands for product ID since a pair of pants showed up in our post when we
+added this piece of shortcode. Now we would like to show both the shirt and the pair of pants, 
+we could add an extra peace of shortcode to accomplish this:
+
+[magento pid='2'] [magento pid='1']
+
+But see how the t-shirt and pair of pants might not line up nicely next to eachother, even though
+there is enough space to do so. We can resolve this (unless the page is not wide enough to line
+them up next to eachother, as is often the case with widgets in the sidebar) by using the same
+piece of shortcode to show both the t-shirt and the pair of pants:
+
+[magento pid='2, 1']
+
+See how we used the same 'pid' in the shortcode to show multiple products which will line up
+next to eachother, given there's enough space to do so. Note that when we remove the apostrophe,
+the shortcode does not function properly anymore:
+
+[magento pid=2, 1]	<- This is wrong.
+
+Also note that using a key like 'pid', 'cat' or 'latest' a second time in the same piece of
+shortcode will replace the the previously set value and thus there's no use in doing this:
+
+[magento pid='2' pid='1']	<- This is not recommended.
+
+The shortcode above will only output the t-shirt (which in our example has product ID 1). Other
+things might worth knowing about the 'pid' key is that there's no limitation to the number of
+values you put in as long as you keep separating them with commas. The apostrophes can be
+removed when you put in just one value, but removing them doesn't really gain you anything.
+
+Moving on to the next key, 'cat'. The key 'cat' stands for category and will accept either a
+category name or ID. The result of 'cat', if any, will output all products found in the
+requested category. It does not accept more than one value, unlike the 'pid' key. Apostrophes 
+aren't required for the 'cat' key, it's a matter of taste wether you decide to use them or not.
+Let's say there's a category 'jeans' with category ID 5. Here's the shortcode:
+
+[magento cat='jeans']
+
+The example shortcode would output all products in the category 'jeans'. Now let's try to get
+the same result using the category's ID:
+
+[magento cat='5']
+
+Note that using the 'cat' key twice in the same piece of shortcode also is useless. Also a
+nice thing to know is that getting the category by ID is a little faster than getting the
+category by name.
+
+The last key would be 'latest'. This key will show all latest products when not given a
+value, or given a value smaller than or equal to zero. When given a positive number greater
+than zero, it wil output that given number of products. The function cannot show anymore
+products than available in the database. An example:
+
+[magento latest='']
+
+Or:
+
+[magento latest='3']
+
+= User instructions - For showing products in a widget =
+The widget should be a little more easy to configure, when going to your theme's widget page
+you can instantly see the Pronamic Magento Plugin Sidebar Widget. Drag it into one of the
+sidebars you will be able to configure it. By default, it doesn't show anything.
+
+Basicly, the first two fields work the same way as they do in the shortcode. The product ID's
+or SKU's should be put in separated by commas. The category accepts a category name or ID and
+does not accept multiple entries. Setting the 'Show latest products' to 'Yes' will show the
+3 latest products by default. After saving a field apears in which this can be changed to any
+number, including zero. Setting the number of latest products shown to zero will make the widget
+output all products.
+
+= User instructions - Creating custom templates =
+The predefined template in the templates map op this plugin should give you a good idea of how
+to create a custom template for your plugin. Of course you could adapt the original one as it
+is in the templates map of this plugin, but copying the template file to your theme map (without
+changing it's name) to adapt it there would be a better solution. The plugin will automatically
+fetch the custom template file if it's found in your theme map (don't put it in a subfolder).
+
+The same goes for a custom css file.
 
 
 == Changelog ==
@@ -29,12 +149,14 @@ WordPress installation and then activate the Plugin from Plugins page.
 *	Made plugin available as widget.
 *	New shortcode latest='$numberofshownproducts' implemented specifically for the widget, but useable for the shortcode as well. Shows latest $number of products. If no number is given (string, array or boolean put in), no products will be shown.
 
+
 == Links ==
 
 *	[Pronamic](http://pronamic.eu/)
 *	[Remco Tolsma](http://remcotolsma.nl/)
 *	[Markdown's Syntax Documentation][markdown syntax]
 *	[Wordgento](http://wordpress.org/extend/plugins/wordgento/)
+
 
 == Pronamic plugins ==
 
@@ -44,4 +166,3 @@ WordPress installation and then activate the Plugin from Plugins page.
 *	[Pronamic Page Teasers](http://wordpress.org/extend/plugins/pronamic-page-teasers/)
 *	[Maildit](http://wordpress.org/extend/plugins/maildit/)
 *	[Pronamic Framework](http://wordpress.org/extend/plugins/pronamic-framework/)
-

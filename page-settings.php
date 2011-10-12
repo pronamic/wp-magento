@@ -66,35 +66,6 @@
 					</span>
 				</td>
 			</tr>
-			<?php if(get_option('magento-caching-option')): ?>
-			<tr valign="top">
-				<th scope="row">
-					<label for="caching-field"><?php _e('Cache lifetime', 'pronamic-magento-plugin') ?></label>
-				</th>
-				<td>
-					<select id="caching-field" name="magento-caching-time" class="regular-text">
-						<option value="15" <?php if(get_option('magento-caching-time') == '15') echo 'selected="selected"'; ?>><?php _e('Fifteen seconds', 'pronamic-magento-plugin') ?></option>
-						<option value="60" <?php if(get_option('magento-caching-time') == '60') echo 'selected="selected"'; ?>><?php _e('One minute', 'pronamic-magento-plugin') ?></option>
-						<option value="600" <?php if(get_option('magento-caching-time') == '600') echo 'selected="selected"'; ?>><?php _e('Ten minutes', 'pronamic-magento-plugin') ?></option>
-						<option value="1800" <?php if(get_option('magento-caching-time') == '1800') echo 'selected="selected"'; ?>><?php _e('Thirty minutes', 'pronamic-magento-plugin') ?></option>
-						<option value="3600" <?php if(get_option('magento-caching-time') == '3600') echo 'selected="selected"'; ?>><?php _e('One hour', 'pronamic-magento-plugin') ?></option>
-						<option value="7200" <?php if(get_option('magento-caching-time') == '7200') echo 'selected="selected"'; ?>><?php _e('Two hours', 'pronamic-magento-plugin') ?></option>
-						<option value="14400" <?php if(get_option('magento-caching-time') == '14400') echo 'selected="selected"'; ?>><?php _e('Four hours', 'pronamic-magento-plugin') ?></option>
-						<option value="28800" <?php if(get_option('magento-caching-time') == '28800') echo 'selected="selected"'; ?>><?php _e('Eight hours', 'pronamic-magento-plugin') ?></option>
-						<option value="57600" <?php if(get_option('magento-caching-time') == '57600') echo 'selected="selected"'; ?>><?php _e('Sixteen hours', 'pronamic-magento-plugin') ?></option>
-						<option value="86400" <?php if(get_option('magento-caching-time') == '86400') echo 'selected="selected"'; ?>><?php _e('One day', 'pronamic-magento-plugin') ?></option>
-						<option value="259200" <?php if(get_option('magento-caching-time') == '259200') echo 'selected="selected"'; ?>><?php _e('Three days', 'pronamic-magento-plugin') ?></option>
-						<option value="640800" <?php if(get_option('magento-caching-time') == '640800') echo 'selected="selected"'; ?>><?php _e('One week', 'pronamic-magento-plugin') ?></option>
-					</select>
-					
-					<?php include_once('CacheClass.php'); CacheClass::setReset(); ?>
-					
-					<span class="description">
-						<?php _e('Timespan to save cache entry.', 'pronamic-magento-plugin') ?>
-					</span>
-				</td>
-			</tr>
-			<?php endif; ?>
 		</table>
 		<?php submit_button(); ?>
 	</form>

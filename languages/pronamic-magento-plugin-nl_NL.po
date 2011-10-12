@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pronamic Magento Plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-11 09:23+0100\n"
-"PO-Revision-Date: 2011-10-11 09:26+0100\n"
+"POT-Creation-Date: 2011-10-12 10:59+0100\n"
+"PO-Revision-Date: 2011-10-12 11:00+0100\n"
 "Last-Translator: \n"
 "Language-Team: Pronamic <info@pronamic.nl>\n"
 "MIME-Version: 1.0\n"
@@ -25,74 +25,68 @@ msgid "Pronamic Magento Plugin Sidebar Widget"
 msgstr "Pronamic Magento Plugin Sidebar Widget"
 
 #: sidebarWidget.php:29
-msgid "Show mode:"
-msgstr "Modus"
-
-#: sidebarWidget.php:31
-msgid "Show latest products"
-msgstr "Laat nieuwste producten zien"
-
-#: sidebarWidget.php:32
-msgid "Show custom list of products"
-msgstr "Bepaal zelf welke producten getoond worden"
-
-#: sidebarWidget.php:39
 msgid "Product ID's or SKU's (Comma separated):"
 msgstr "Product ID's of SKU's (Komma gescheiden)"
 
-#: sidebarWidget.php:44
+#: sidebarWidget.php:34
 msgid "Category name or ID:"
 msgstr "Categorie naam of ID"
 
-#: sidebarWidget.php:51
-msgid "Number of products shown"
-msgstr "Aantal getoonde producten"
+#: sidebarWidget.php:39
+msgid "Show latest products"
+msgstr "Laat nieuwste producten zien"
 
+#: sidebarWidget.php:41
 #: sidebarWidget.php:56
-msgid "Use separate template"
-msgstr "Gebruik afgescheiden template"
-
-#: sidebarWidget.php:58
 #: page-settings.php:61
 msgid "Yes"
 msgstr "Ja"
 
-#: sidebarWidget.php:59
+#: sidebarWidget.php:42
+#: sidebarWidget.php:57
 #: page-settings.php:60
 msgid "No"
 msgstr "Nee"
 
-#: magento.php:92
+#: sidebarWidget.php:48
+msgid "Number of latest products shown"
+msgstr "Aantal getoonde nieuwste producten"
+
+#: sidebarWidget.php:54
+msgid "Use separate template"
+msgstr "Gebruik afgescheiden template"
+
+#: magento.php:115
 msgid "Unable to login to host with that username/password combination."
 msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host met de huidige gebruikersnaam/wachtwoord combinatie."
 
-#: magento.php:95
+#: magento.php:118
 msgid "Unable to connect to host."
 msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host."
 
-#: magento.php:171
+#: magento.php:211
 msgid "We're sorry, we weren't able to find any products with the queried category id."
 msgstr "Het spijt ons, de plugin was niet in staat producten te vinden met de gevraagde ID's"
 
-#: magento.php:283
+#: magento.php:326
 msgid "Unable to obtain any products."
 msgstr "Het spijt ons, de plugin was niet in staat producten op te halen."
 
-#: magento.php:317
+#: magento.php:362
 msgid "Detected an error in the template file, actions have been interupted."
 msgstr "Er is een fout aangetroffen in het template bestand, de acties zijn onderbroken."
 
-#: magento.php:398
+#: magento.php:444
 msgid "We're sorry, we were unable to obtain any categories."
 msgstr "Het spijt ons, de plugin was niet in staat de categorie&#235;n op te halen."
 
-#: magento.php:494
-#: magento.php:495
+#: magento.php:540
+#: magento.php:541
 msgid "Magento"
 msgstr "Magento"
 
-#: magento.php:506
-#: magento.php:507
+#: magento.php:552
+#: magento.php:553
 msgid "Settings"
 msgstr "Instellingen"
 
@@ -132,59 +126,50 @@ msgstr "Caching"
 msgid "Should we save product results returned by the Magento API? Saving results increases loading performance."
 msgstr "Mogen we de productresultaten afkomstig van de Magento API opslaan? Dit verbetert laadprestaties."
 
-#: page-settings.php:72
-msgid "Cache lifetime"
-msgstr "Levensduur cache"
+#~ msgid "Show mode:"
+#~ msgstr "Modus"
 
-#: page-settings.php:76
-msgid "Fifteen seconds"
-msgstr "Vijftien seconden"
+#~ msgid "Show custom list of products"
+#~ msgstr "Bepaal zelf welke producten getoond worden"
 
-#: page-settings.php:77
-msgid "One minute"
-msgstr "Eén minuut"
+#~ msgid "Cache lifetime"
+#~ msgstr "Levensduur cache"
 
-#: page-settings.php:78
-msgid "Ten minutes"
-msgstr "Tien minuten"
+#~ msgid "Fifteen seconds"
+#~ msgstr "Vijftien seconden"
 
-#: page-settings.php:79
-msgid "Thirty minutes"
-msgstr "Dertig minuten"
+#~ msgid "One minute"
+#~ msgstr "Eén minuut"
 
-#: page-settings.php:80
-msgid "One hour"
-msgstr "Eén uur"
+#~ msgid "Ten minutes"
+#~ msgstr "Tien minuten"
 
-#: page-settings.php:81
-msgid "Two hours"
-msgstr "Twee uur"
+#~ msgid "Thirty minutes"
+#~ msgstr "Dertig minuten"
 
-#: page-settings.php:82
-msgid "Four hours"
-msgstr "Vier uur"
+#~ msgid "One hour"
+#~ msgstr "Eén uur"
 
-#: page-settings.php:83
-msgid "Eight hours"
-msgstr "Acht uur"
+#~ msgid "Two hours"
+#~ msgstr "Twee uur"
 
-#: page-settings.php:84
-msgid "Sixteen hours"
-msgstr "Zestien uur"
+#~ msgid "Four hours"
+#~ msgstr "Vier uur"
 
-#: page-settings.php:85
-msgid "One day"
-msgstr "Eén dag"
+#~ msgid "Eight hours"
+#~ msgstr "Acht uur"
 
-#: page-settings.php:86
-msgid "Three days"
-msgstr "Drie dagen"
+#~ msgid "Sixteen hours"
+#~ msgstr "Zestien uur"
 
-#: page-settings.php:87
-msgid "One week"
-msgstr "Eén week"
+#~ msgid "One day"
+#~ msgstr "Eén dag"
 
-#: page-settings.php:93
-msgid "Timespan to save cache entry."
-msgstr "Tijdsduur voor het opslaan van een cache bestand."
+#~ msgid "Three days"
+#~ msgstr "Drie dagen"
 
+#~ msgid "One week"
+#~ msgstr "Eén week"
+
+#~ msgid "Timespan to save cache entry."
+#~ msgstr "Tijdsduur voor het opslaan van een cache bestand."

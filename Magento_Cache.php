@@ -1,5 +1,6 @@
 <?php 
-class CacheClass {
+class Magento_Cache {
+	private static $CACHETIME = 86400; // 24hrs (60*60*24)
 	private static $DEFAULTCACHENAME = 'pronamic-magento-plugin-defaultcache';
 	private $currentCacheName;
 		
@@ -66,30 +67,8 @@ class CacheClass {
 	 */
 	public function storeCache($string){
 		try{
-			$time = '';
-			$time = get_option('magento-caching-time');
-			if(empty($time)){
-				$time = 3600;
-			}
-			
-			set_transient($this->currentCacheName, $string, $time);
-			set_transient(self::$DEFAULTCACHENAME, '', $time);
-		}catch(Exception $e){	}
-	}
-	
-	/**
-	 * Sets the default cachename's value to RESET, this will result in a thrown exception
-	 * in getCache() so all cache will be resetted and renewed. This comes in handy when a
-	 * new caching time is set in the settings.
-	 */
-	public static function setReset(){
-		try{
-			$time = '';
-			$time = get_option('magento-caching-time');
-			if(empty($time)){
-				$time = 3600;
-			}
-			set_transient(self::$DEFAULTCACHENAME, 'RESET', $time);
+			set_transient($this->currentCacheName, $string, self::$CACHETIME);
+			set_transient(self::$DEFAULTCACHENAME, '', self::$CACHETIME);
 		}catch(Exception $e){	}
 	}
 }

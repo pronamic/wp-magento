@@ -43,7 +43,6 @@ class Magento {
 	 * @return String $content
 	 */
 	public static function shortcode($atts) {
-		error_reporting(E_ALL ^ E_NOTICE);
 		$content = '';
 		$content .= self::getProductOutput($atts, 0, 'plugin');
 		
@@ -59,11 +58,16 @@ class Magento {
 		$content = '';
 		$runApiCalls = true;
 		
+		// Style
+		if(!wp_style_is('pronamic-magento-'.$templatemode.'-stylehseet', 'queue')){
+			wp_print_styles(array('pronamic-magento-'.$templatemode.'-stylesheet'));
+		}
+		
 		// Will always run, unless caching has not been enabled. If any step in this proces fails, e.g.: Outdated cache or No cache found, we will run the API calls.
 		if(get_option('magento-caching-option')){
 			// Create the class
-			include_once('CacheClass.php');
-			$CC = new CacheClass($atts, $maxproducts);
+			include_once('Magento_Cache.php');
+			$CC = new Magento_Cache($atts, $maxproducts);
 			
 			try{
 				$content .= $CC->getCache();
@@ -127,12 +131,7 @@ class Magento {
 			// Template
 			$template = self::getTemplate($templatemode);
 			
-			// Style
-			if(!wp_style_is('pronamic-magento-plugin-stylehseet', 'queue')){
-				wp_print_styles(array('pronamic-magento-plugin-stylesheet'));
-			}
-			
-			$productIds = self::getProductIDsFromAtts($atts, $client, $session);
+			$productIds = self::getProductIDsFromAtts($atts, $client, $session, $maxproducts);
 			if(!empty($productIds)){
 				$content .= self::getProductsByID($productIds, $client, $session, $url, $template);
 			}
@@ -147,9 +146,10 @@ class Magento {
 	 * @param mixed array $atts
 	 * @param Object $client
 	 * @param String $session
+	 * @param int $maxproducts
 	 * @return array of ints $productIds
 	 */
-	private static function getProductIDsFromAtts($atts, $client, $session){						
+	private static function getProductIDsFromAtts($atts, $client, $session, $maxproducts){						
 		$productIds = array();
 		
 		// If there are ID's being parsed, do these actions.
@@ -185,15 +185,16 @@ class Magento {
 				// When there is a mach, we need not look further so we break.
 				foreach($result as $key=>$value){
 					$tmp_id = '';
+					$break = false;
 					foreach($value as $key2=>$value2){
 						if($key2 == 'category_id'){
 							$tmp_id = $value2;
-						}							
+						}						
 						if($key2 == 'name' && strtolower(trim($value2)) == $cat){
 							$cat_id = $tmp_id;
 							$break = true;
 							break;
-						}
+						}						
 					}
 					if($break){
 						break;
@@ -240,6 +241,10 @@ class Magento {
 		
 		// Sort products by date
 		if(isset($atts['latest'])){
+			if(empty($atts['latest'])){
+				$atts['latest'] = 0;
+			}
+			
 			$result = self::getProductList($client, $session);
 			if(!empty($result)){
 				$pids = array();
@@ -276,7 +281,18 @@ class Magento {
 					}
 				}
 			}
+		}// Finished walking through last articles
+		
+		if(isset($atts['test'])){
+			try{
+				$result = $client->call($session, 'country.list');
+			}catch(Exception $e){ echo 'faal'; }
+			echo 'test location <br /><br />';
+			if(isset($result)){
+				var_dump($result);
+			}
 		}
+		
 		return $productIds;
 	}
 	
@@ -331,17 +347,20 @@ class Magento {
 				// Place the result and the image in an array that will be looped through in the template. Format: array('1' => array('result' => $result, 'image' => $image))
 				$magento_products[] = array('result' => $result, 'image' => $image);
 			}
-		}
-		
-		// Included functions to make template use more easy on the user
-		include_once('templates/shortFunctions.php');
-		new Mage();
+		}		
 		
 		// The template
-		try{
-			include($template);
-		}catch(Exception $e){
-			$content .= __('Detected an error in the template file, actions have been interupted.', 'pronamic-magento-plugin');
+		if(!empty($magento_products)){
+			// Included functions to make template use more easy on the user
+			include_once('shortFunctions.php');
+			global $Mage;
+			$Mage = new Magento_Product($magento_products);
+			
+			try{
+				include($template);
+			}catch(Exception $e){
+				$content .= __('Detected an error in the template file, actions have been interupted.', 'pronamic-magento-plugin');
+			}
 		}
 	
 		return $content;
@@ -438,7 +457,7 @@ class Magento {
 		$templates = array('pronamic-magento-'.$templatemode.'template.php');
 		$template = locate_template($templates);
 		if(!$template){
-			$template = 'templates/pronamic-magento-'.$templatemode.'template.php';
+			$template = 'templates/pronamic-magento-'.$templatemode.'-template.php';
 		}
 		
 		return $template;
@@ -456,7 +475,6 @@ class Magento {
 		}
 		
 		wp_register_style('pronamic-magento-'.$templatemode.'-stylesheet', $stylesheet);
-		wp_enqueue_style( 'pronamic-magento-'.$templatemode.'-stylesheet');
 	}	
 	
 	/**
@@ -471,7 +489,7 @@ class Magento {
 		$newarray = array();
 		foreach($array as $key=>$value){
 			if(is_array($value)){
-				if(is_array($value['children'])){
+				if(isset($value['children']) && is_array($value['children'])){
 					$count = count($newarray);
 					$newarray[$count] = $value['children'];
 					$array[$key]['children'] = '';
@@ -483,7 +501,7 @@ class Magento {
 							$array[$key][$key2] = '';
 						}
 					}
-				}
+				}				
 			}
 		}				
 		if(!empty($newarray)){

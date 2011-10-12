@@ -11,6 +11,8 @@ License: GPL
 */
 
 class Magento {
+	//private static $CACHETIME = 86400; // 24hrs (60*60*24);
+	private static $CACHETIME = 60; // 1 minute.
 	private static $soapClient;
 	private static $session;
 	
@@ -67,7 +69,7 @@ class Magento {
 		if(get_option('magento-caching-option')){
 			// Create the class
 			include_once('Magento_Cache.php');
-			$CC = new Magento_Cache($atts, $maxproducts);
+			$CC = new Magento_Cache($atts, $maxproducts, self::$CACHETIME);
 			
 			try{
 				$content .= $CC->getCache();
@@ -177,7 +179,7 @@ class Magento {
 				if(is_numeric($cat)){
 					$cat_id = $cat;
 				}else{			
-					$result = self::getCatagoryList($client, $session);
+					$result = self::getCategoryList($client, $session);
 					
 					// Magento passes a wrapper array, to make it easier on the getCatagories function
 					// we throw that wrapper away here and then call the function, so we get a flat array.
@@ -207,12 +209,8 @@ class Magento {
 				
 				// If there's a result on our query. (or just a numeric string was parsed)
 				if(!empty($cat_id)){
-					// Get list of all products so we can filter out the required ones.
-					try{
-						$productlist = $client->call($session, 'catalog_product.list');
-					}catch(Exception $e){
-						$content .= __('We\'re sorry, we weren\'t able to find any products with the queried category id.', 'pronamic-magento-plugin');
-					}
+					// Get list of all products so we can filter out the required ones.					
+					$productlist = self::getProductList($client, $session);
 					
 					// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
 					if($productlist){
@@ -311,14 +309,8 @@ class Magento {
 			$productId = strtolower(trim($value));
 			
 			// Get product information and images from specified product ID.
-			try{
-				$result = $client->call($session, 'catalog_product.info', $productId);	
-				try{
-					$images = $client->call($session, 'product_media.list', $productId);
-				}catch(Exception $e){	}
-			}catch(Exception $e){
-				$content .= __('Unable to obtain any products.', 'pronamic-magento-plugin');
-			}
+			$result = self::getProductByID($productId, $client, $session);
+			$images = self::getImageByProductID($productId, $client, $session);
 			
 			// Build up the obtained information (if any) and pass them on in the $content variable which will be returned.
 			if($result){
@@ -389,23 +381,83 @@ class Magento {
 	}
 	
 	/**
-	 * Returns a list of all products.
+	 * Returns information about a product gotten from API by using the parsed ProductID, uses caching.
+	 * 
+	 * @param uint $productID
+	 * @param Object $client
+	 * @param String $session
+	 */
+	public static function getProductByID($productId, $client, $session){
+		$result = '';	
+		if(get_option('magento-caching-option')){
+			$result = get_transient('magento-CachedProduct'.$productId);
+		}
+		
+		if(empty($result)){
+			try{
+				$result = $client->call($session, 'catalog_product.info', $productId);
+				if(get_option('magento-caching-option')){
+					set_transient('magento-CachedProduct'.$productId, $result, self::$CACHETIME);
+				}
+			}catch(Exception $e){	}	
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Returns information about the image with $productId, uses caching.
+	 * 
+	 * @param int $productId
+	 * @param Object $client
+	 * @param String $session
+	 */
+	public static function getImageByProductID($productId, $client, $session){
+		$image = '';
+		if(get_option('magento-caching-option')){
+			$image = get_transient('magento-CachedImage'.$productId);
+		}
+		
+		if(empty($image)){
+			try{
+				$image = $client->call($session, 'product_media.list', $productId);
+				if(get_option('magento-caching-option')){
+					set_transient('magento-CachedImage'.$productId, $image, self::$CACHETIME);
+				}
+			}catch(Exception $e){	}
+		}
+		
+		return $image;
+	}
+	
+	/**
+	 * Returns a list of all products. Uses caching
 	 * 
 	 * @param String $apiKey
 	 * @param Object $client
 	 */
 	private static function getProductList($client, $session){
 		$result = '';
-		try{
-			$result = $client->call($session, 'catalog_product.list');
-		}catch(Exception $e){	}
+		if(get_option('magento-caching-option')){
+			$result = get_transient('magento-getProductList');
+		}
+		
+		if(empty($result)){
+			try{
+				$result = $client->call($session, 'catalog_product.list');
+				if(get_option('magento-caching-option')){
+					set_transient('magento-getProductList', $result, self::$CACHETIME);
+				}
+			}catch(Exception $e){	}
+		}
 		
 		return $result;
 	}
 	
 	/**
 	 * Accepts an array of ints, which it passes one at a time
-	 * to get all products into a new array.
+	 * to get all products into a new array. Does not work with 
+	 * multidimensional arrays. Uses caching
 	 * 
 	 * @param array of ints $productids
 	 * @param Object $client
@@ -414,28 +466,53 @@ class Magento {
 	private static function getProductListByIDs($productIds, $client, $session){
 		$result = '';
 		$array = array();
-		foreach($productIds as $productId){
-			try{
-				$result = $client->call($session, 'catalog_product.info', $productId);
-				$array[] = $result;
-			}catch(Exception $e){	}
+		
+		$cachename = '';
+		foreach($productIds as $value){
+			$cachename .= $value;
+		}
+		
+		if(get_option('magento-caching-option') && !empty($cachename)){
+			$array = get_transient('magento-getProductListByIDs'.$cachename);
+		}
+		
+		if(empty($array)){
+			$error = '';
+			foreach($productIds as $productId){
+				try{
+					$result = $client->call($session, 'catalog_product.info', $productId);
+					$array[] = $result;
+				}catch(Exception $e){
+					$error .= 'An error occured <br />';
+				}
+			}
+			if(empty($error)){
+				set_transient('magento-getProductListByIDs'.$cachename, $array, self::$CACHETIME);
+			}
 		}
 		
 		return $array;
 	}
 	
 	/**
-	 * Function which returns the catagory tree.
+	 * Function which returns the catagory tree. Uses caching
 	 * 
 	 * @param Object $client
 	 * @param String $session
 	 */
-	private static function getCatagoryList($client, $session){
+	private static function getCategoryList($client, $session){
 		$result = '';
-		try{
-			$result = $client->call($session, 'catalog_category.tree');	
-		}catch(Exception $e){
-			$content .= __('We\'re sorry, we were unable to obtain any categories.', 'pronamic-magento-plugin');
+		if(get_option('magento-caching-option')){
+			$result = get_transient('magento-getCategoryList');
+		}
+		
+		if(empty($result)){
+			try{
+				$result = $client->call($session, 'catalog_category.tree');
+				if(get_option('magento-caching-option')){
+					set_transient('magento-getCategoryList', $result, self::$CACHETIME);
+				}
+			}catch(Exception $e){	}
 		}
 		
 		return $result;

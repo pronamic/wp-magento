@@ -1,6 +1,6 @@
 <?php 
 class Magento_Cache {
-	private static $CACHETIME = 86400; // 24hrs (60*60*24)
+	private static $CACHETIME;
 	private static $DEFAULTCACHENAME = 'pronamic-magento-plugin-defaultcache';
 	private $currentCacheName;
 		
@@ -10,8 +10,9 @@ class Magento_Cache {
 	 * 
 	 * @param mixed array $atts
 	 */
-	public function __construct($atts, $maxproducts){
+	public function __construct($atts, $maxproducts, $cachetime){
 		$this->currentCacheName = $this->buildCacheNameFromAtts($atts, $maxproducts);
+		self::$CACHETIME = $cachetime;
 	}
 	
 	/**
@@ -52,7 +53,7 @@ class Magento_Cache {
 			}
 		}
 		if(!empty($tmp)){
-			$tmp .= strtolower(trim($maxproducts));
+			$tmp = 'magento-' . $tmp . strtolower(trim($maxproducts));
 		}else{
 			$tmp .= self::$DEFAULTCACHENAME;
 		}

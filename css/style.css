@@ -13,6 +13,12 @@
 	max-width: 180px;
 }
 
+.pronamic-magento-items-grid b {
+	margin-left: 30px;
+	font-weight: bold;
+	color: #1982d1;
+}
+
 .pronamic-magento-items-grid li img {
 	border:solid 0px #000;
 	
@@ -20,4 +26,12 @@
 	max-height: 130px;
 	
 	padding:1px
+}
+
+.magento-no-image {
+	display: block;
+	width: 130px;
+	height: 130px;
+	background-image: url(../images/noimg.jpg);
+	margin-bottom: 8px;
 }

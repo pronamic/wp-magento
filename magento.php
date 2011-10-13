@@ -12,7 +12,7 @@ License: GPL
 
 class Magento {
 	//const CACHETIME = 86400; // 24hrs (60*60*24);
-	const CACHETIME = 60; // 1 minute.
+	const CACHETIME = 300; // 1 minute.
 	private static $soapClient;
 	private static $session;
 	
@@ -47,7 +47,7 @@ class Magento {
 	 */
 	public static function shortcode($atts) {
 		$content = '';
-		$content .= self::getProductOutput($atts, 0, 'plugin');
+		$content .= self::getProductOutput($atts, 0, 'shortcode');
 		
 		return $content;
 	}
@@ -289,12 +289,12 @@ class Magento {
 		/**
 		 * Test attribute.
 		 */
-		/*
+		
 		if(isset($atts['test'])){
 			$result = self::getProductByID(787, $client, $session);
 			var_dump($result);
 		}
-		*/
+		
 		
 		return $productIds;
 	}
@@ -534,11 +534,11 @@ class Magento {
 	 * @return String $template (Location to template file, custom or default)
 	 */
 	private static function getTemplate($templatemode){
-		if(empty($templatemode)) $templatemode = 'plugin';
-		$templates = array('pronamic-magento-'.$templatemode.'template.php');
+		if(empty($templatemode)) $templatemode = 'shortcode';
+		$templates = array('templates/magento-products-'.$templatemode.'.php');
 		$template = locate_template($templates);
 		if(!$template){
-			$template = 'templates/pronamic-magento-'.$templatemode.'-template.php';
+			$template = 'templates/magento-products-'.$templatemode.'.php';
 		}
 		
 		return $template;

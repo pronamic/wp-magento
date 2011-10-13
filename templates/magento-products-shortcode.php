@@ -4,7 +4,9 @@
  * $Mage->have_products()			--	Checks wether there's a product to be displayed or not.
  * $Mage->product_title()			--	Outputs the product title.
  * $Mage->product_url()				--	Outputs the product url.
- * $Mage->product_price()			--	Outputs the product price in format 0.00.
+ * $Mage->product_price()			--	Outputs the product price in format 0.00. This function shows the price or when there's a discount, it shows the price after discount.
+ * $Mage->product_default_price()	--	Outputs the products default price in format 0.00. This is the price without discount.
+ * $Mage->product_special_price()	--	Outputs the discount price in format 0.00.
  * $Mage->has_image()				--	Checks wether there's an image to display or not.
  * $Mage->product_image_url()		--	Outputs the url to the image.
  * 
@@ -20,7 +22,7 @@
 		<?php if($Mage->has_image()): ?>
 			<a href="<?php $Mage->product_url(); ?>" target="_blank"><img src="<?php $Mage->product_image_url(); ?>" alt="" /></a>
 		<?php else: ?>
-			<a href="<?php $Mage->product_url(); ?>" target="_blank"><img src="wp-content/plugins/magento/images/noimg.gif" alt="" /></a>
+			<a href="<?php $Mage->product_url(); ?>" target="_blank"><span class="magento-no-image"></span></a>
 		<?php endif; ?>
 		
 		<h2><a href="<?php $Mage->product_url(); ?>" target="_blank">

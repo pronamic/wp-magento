@@ -36,8 +36,8 @@ class Magento_Products_Widget extends WP_Widget{
 		</p>
 		
 		<p>
-			<label for="<?php echo $this->get_field_id('showlatest'); ?>"><?php _e('Show latest products', 'pronamic-magento-plugin'); ?></label>
-			<input value="1" <?php checked($instance['showlatest'], 1); ?> type="checkbox" id="<?php echo $this->get_field_id('showlatest'); ?>" name="<?php echo $this->get_field_name('showlatest'); ?>" class="fat" />
+			<label for="<?php echo $this->get_field_id('showlatest'); ?>"><?php _e('Show latest products', 'pronamic-magento-plugin'); ?>
+			<input value="1" <?php checked($instance['showlatest'], 1); ?> type="checkbox" id="<?php echo $this->get_field_id('showlatest'); ?>" name="<?php echo $this->get_field_name('showlatest'); ?>" class="fat" /></label>
 		</p>
 		
 		<?php if($instance['showlatest']): ?>
@@ -48,8 +48,8 @@ class Magento_Products_Widget extends WP_Widget{
 		<?php endif; ?>
 		
 		<p>
-			<label for="<?php echo $this->get_field_id('septemp'); ?>"><?php _e('Use separate template', 'pronamic-magento-plugin'); ?></label>
-			<input value="1" <?php checked($instance['septemp'], 1); ?> type="checkbox" id="<?php echo $this->get_field_id('septemp'); ?>" name="<?php echo $this->get_field_name('septemp'); ?>" class="fat" />
+			<label for="<?php echo $this->get_field_id('septemp'); ?>"><?php _e('Use separate template', 'pronamic-magento-plugin'); ?>
+			<input value="1" <?php checked($instance['septemp'], 1); ?> type="checkbox" id="<?php echo $this->get_field_id('septemp'); ?>" name="<?php echo $this->get_field_name('septemp'); ?>" class="fat" /></label>
 		</p>
 		
 		<?php

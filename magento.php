@@ -62,8 +62,8 @@ class Magento {
 		$runApiCalls = true;
 		
 		// Style
-		if(!wp_style_is('pronamic-magento-'.$templatemode.'-stylehseet', 'queue')){
-			wp_print_styles(array('pronamic-magento-'.$templatemode.'-stylesheet'));
+		if(!wp_style_is('pronamic-magento-plugin-stylehseet', 'queue')){
+			wp_print_styles(array('pronamic-magento-plugin-stylesheet'));
 		}
 		
 		// Will always run, unless caching has not been enabled. If any step in this proces fails, e.g.: Outdated cache or No cache found, we will run the API calls.

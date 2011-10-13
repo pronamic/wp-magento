@@ -11,19 +11,21 @@ License: GPL
 */
 
 class Magento {
-	//private static $CACHETIME = 86400; // 24hrs (60*60*24);
-	private static $CACHETIME = 60; // 1 minute.
+	//const CACHETIME = 86400; // 24hrs (60*60*24);
+	const CACHETIME = 60; // 1 minute.
 	private static $soapClient;
 	private static $session;
 	
 	public static function bootstrap() {
+		self::magento_auto_include();
+		
 		add_action('init', array(__CLASS__, 'initialize'));
-
+		
 		add_action('admin_init', array(__CLASS__, 'adminInitialize'));
-
+		
 		add_action('admin_menu', array(__CLASS__, 'adminMenu'));
 		
-		add_action('widgets_init', array(__CLASS__, 'sidebarWidget'));
+		add_action('widgets_init', array(__CLASS__, 'Magento_Products_Widget'));
 	}
 
 	public static function initialize() {
@@ -32,9 +34,8 @@ class Magento {
 		load_plugin_textdomain('pronamic-magento-plugin', false, $relPath);	
 
 		// Stylesheet
-		self::setStyleSheet('plugin');
-		self::setStyleSheet('widget');
-		
+		self::setStyleSheet();
+				
 		add_shortcode('magento', array(__CLASS__, 'shortcode'));
 	}
 	
@@ -68,8 +69,7 @@ class Magento {
 		// Will always run, unless caching has not been enabled. If any step in this proces fails, e.g.: Outdated cache or No cache found, we will run the API calls.
 		if(get_option('magento-caching-option')){
 			// Create the class
-			include_once('Magento_Cache.php');
-			$CC = new Magento_Cache($atts, $maxproducts, self::$CACHETIME);
+			$CC = new Magento_Cache($atts, $maxproducts, self::CACHETIME);
 			
 			try{
 				$content .= $CC->getCache();
@@ -285,6 +285,17 @@ class Magento {
 			}
 		}// Finished walking through last articles
 		
+		/*
+		/**
+		 * Test attribute.
+		 */
+		/*
+		if(isset($atts['test'])){
+			$result = self::getProductByID(787, $client, $session);
+			var_dump($result);
+		}
+		*/
+		
 		return $productIds;
 	}
 	
@@ -319,7 +330,7 @@ class Magento {
 					$image = $image['url'];
 				}else{
 					unset($image);
-					$image = plugins_url('images/noimg.gif', __FILE__);
+					$image = '';
 				}
 								
 				// Check if base url ends correctly (with a /)
@@ -333,14 +344,13 @@ class Magento {
 				// Place the result and the image in an array that will be looped through in the template. Format: array('1' => array('result' => $result, 'image' => $image))
 				$magento_products[] = array('result' => $result, 'image' => $image);
 			}
-		}		
+		}
 		
 		// The template
 		if(!empty($magento_products)){
 			// Included functions to make template use more easy on the user
-			include_once('shortFunctions.php');
 			global $Mage;
-			$Mage = new Magento_Product($magento_products);
+			$Mage = new Magento_Template_Helper($magento_products);
 			
 			try{
 				include($template);
@@ -397,7 +407,7 @@ class Magento {
 			try{
 				$result = $client->call($session, 'catalog_product.info', $productId);
 				if(get_option('magento-caching-option')){
-					set_transient('magento-CachedProduct'.$productId, $result, self::$CACHETIME);
+					set_transient('magento-CachedProduct'.$productId, $result, self::CACHETIME);
 				}
 			}catch(Exception $e){	}	
 		}
@@ -422,7 +432,7 @@ class Magento {
 			try{
 				$image = $client->call($session, 'product_media.list', $productId);
 				if(get_option('magento-caching-option')){
-					set_transient('magento-CachedImage'.$productId, $image, self::$CACHETIME);
+					set_transient('magento-CachedImage'.$productId, $image, self::CACHETIME);
 				}
 			}catch(Exception $e){	}
 		}
@@ -446,7 +456,7 @@ class Magento {
 			try{
 				$result = $client->call($session, 'catalog_product.list');
 				if(get_option('magento-caching-option')){
-					set_transient('magento-getProductList', $result, self::$CACHETIME);
+					set_transient('magento-getProductList', $result, self::CACHETIME);
 				}
 			}catch(Exception $e){	}
 		}
@@ -487,7 +497,7 @@ class Magento {
 				}
 			}
 			if(empty($error)){
-				set_transient('magento-getProductListByIDs'.$cachename, $array, self::$CACHETIME);
+				set_transient('magento-getProductListByIDs'.$cachename, $array, self::CACHETIME);
 			}
 		}
 		
@@ -510,7 +520,7 @@ class Magento {
 			try{
 				$result = $client->call($session, 'catalog_category.tree');
 				if(get_option('magento-caching-option')){
-					set_transient('magento-getCategoryList', $result, self::$CACHETIME);
+					set_transient('magento-getCategoryList', $result, self::CACHETIME);
 				}
 			}catch(Exception $e){	}
 		}
@@ -537,16 +547,10 @@ class Magento {
 	/**
 	 * This function will set the stylesheet (enqueue it in WP header).
 	 */
-	private static function setStyleSheet($templatemode){
-		if(empty($templatemode)) $templatemode = 'plugin';
-		$stylesheet = '';
-		$stylesheet = get_bloginfo('stylesheet_directory') . '/' . 'pronamic-magento-'.$templatemode.'-stylesheet.css';
-		if(!file_exists($stylesheet)){
-			$stylesheet = plugins_url('css/pronamic-magento-'.$templatemode.'-stylesheet.css', __FILE__);
-		}
-		
-		wp_register_style('pronamic-magento-'.$templatemode.'-stylesheet', $stylesheet);
-	}	
+	private static function setStyleSheet(){
+		$stylesheet = plugins_url('css/style.css', __FILE__);
+		wp_register_style('pronamic-magento-plugin-stylesheet', $stylesheet);
+	}
 	
 	/**
 	 * Function to flatten the multidemensional array given by the Magento API
@@ -627,9 +631,23 @@ class Magento {
 		);
 	}
 	
-	public static function sidebarWidget(){
-		include_once('sidebarWidget.php');
-		register_widget('sidebarWidget');
+	public static function magento_auto_include(){
+		if(function_exists('spl_autoload_register')){
+			function magento_file_autoloader($name) {
+				$name = str_replace('\\', DIRECTORY_SEPARATOR, $name);
+	
+				$file = dirname(__FILE__) . DIRECTORY_SEPARATOR . $name . '.php';
+	
+				if(is_file($file)) {
+					require_once $file;
+				}
+			}
+			spl_autoload_register('magento_file_autoloader');			
+		}
+	}
+	
+	public static function Magento_Products_Widget(){
+		register_widget('Magento_Products_Widget');
 	}
 
 	public static function page() {

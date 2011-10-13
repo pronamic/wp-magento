@@ -55,11 +55,8 @@
 				<th scope="row">
 					<label for="caching-field"><?php _e('Caching', 'pronamic-magento-plugin') ?></label>
 				</th>
-				<td>
-					<select id="caching-field" name="magento-caching-option" class="regular-text">
-						<option value="0" <?php if(!get_option('magento-caching-option')) echo 'selected="selected"'; ?>><?php _e('No', 'pronamic-magento-plugin') ?></option>
-						<option value="1" <?php if(get_option('magento-caching-option')) echo 'selected="selected"'; ?>><?php _e('Yes', 'pronamic-magento-plugin') ?></option>
-					</select>
+				<td>					
+					<input value="1" <?php checked(get_option('magento-caching-option'), 1); ?> type="checkbox" id="caching-field" name="magento-caching-option" class="regular-text" />
 					
 					<span class="description">
 						<?php _e('Should we save product results returned by the Magento API? Saving results increases loading performance.', 'pronamic-magento-plugin') ?>

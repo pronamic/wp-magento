@@ -19,6 +19,8 @@
 		
 		<?php if($Mage->has_image()): ?>
 			<a href="<?php $Mage->product_url(); ?>" target="_blank"><img src="<?php $Mage->product_image_url(); ?>" alt="" /></a>
+		<?php else: ?>
+			<a href="<?php $Mage->product_url(); ?>" target="_blank"><img src="wp-content/plugins/magento/images/noimg.gif" alt="" /></a>
 		<?php endif; ?>
 		
 		<h2><a href="<?php $Mage->product_url(); ?>" target="_blank">

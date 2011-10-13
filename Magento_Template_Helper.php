@@ -1,5 +1,5 @@
 <?php 
-class Magento_Product{
+class Magento_Template_Helper{
 	private $magento_products;
 	private $i;
 	private $count;

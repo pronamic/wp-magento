@@ -1,12 +1,12 @@
 <?php 
-class sidebarWidget extends WP_Widget{
+class Magento_Products_Widget extends WP_Widget{
 	
 	/**
 	 * Initializes the sidebarWidget class
 	 */
-	public function sidebarWidget(){
+	public function Magento_Products_Widget(){
 		// Settings
-		$widget_ops = array('classname' => 'sidebarWidget', 'description' => __('The widget version of the Pronamic Magento plugin.', 'pronamic-magento-plugin'));
+		$widget_ops = array('classname' => 'Magento-Sidebar-Widget', 'description' => __('The widget version of the Pronamic Magento plugin.', 'pronamic-magento-plugin'));
 
 		/* Widget control settings. */
 		$control_ops = array('width' => 300, 'height' => 350, 'id_base' => 'pronamic-magento-plugin');
@@ -37,10 +37,7 @@ class sidebarWidget extends WP_Widget{
 		
 		<p>
 			<label for="<?php echo $this->get_field_id('showlatest'); ?>"><?php _e('Show latest products', 'pronamic-magento-plugin'); ?></label>
-			<select class="fat" id="<?php echo $this->get_field_id('showlatest'); ?>" name="<?php echo $this->get_field_name('showlatest'); ?>">
-				<option <?php if($instance['showlatest']) echo 'selected="selected"'; ?> value="1"><?php _e('Yes', 'pronamic-magento-plugin'); ?></option>
-				<option <?php if(!$instance['showlatest']) echo 'selected="selected"'; ?> value="0"><?php _e('No', 'pronamic-magento-plugin'); ?></option>
-			</select>
+			<input value="1" <?php checked($instance['showlatest'], 1); ?> type="checkbox" id="<?php echo $this->get_field_id('showlatest'); ?>" name="<?php echo $this->get_field_name('showlatest'); ?>" class="fat" />
 		</p>
 		
 		<?php if($instance['showlatest']): ?>
@@ -52,10 +49,7 @@ class sidebarWidget extends WP_Widget{
 		
 		<p>
 			<label for="<?php echo $this->get_field_id('septemp'); ?>"><?php _e('Use separate template', 'pronamic-magento-plugin'); ?></label>
-			<select class="fat" id="<?php echo $this->get_field_id('septemp'); ?>" name="<?php echo $this->get_field_name('septemp'); ?>">
-				<option <?php if($instance['septemp']) echo 'selected="selected"'; ?> value="1"><?php _e('Yes', 'pronamic-magento-plugin'); ?></option>
-				<option <?php if(!$instance['septemp']) echo 'selected="selected"'; ?> value="0"><?php _e('No', 'pronamic-magento-plugin'); ?></option>
-			</select>
+			<input value="1" <?php checked($instance['septemp'], 1); ?> type="checkbox" id="<?php echo $this->get_field_id('septemp'); ?>" name="<?php echo $this->get_field_name('septemp'); ?>" class="fat" />
 		</p>
 		
 		<?php
@@ -95,7 +89,11 @@ class sidebarWidget extends WP_Widget{
 		
 		// Different mode is different outcome
 		$content = '';
-		$content .= magento::getProductOutput(array('pid'=>$instance['pid'], 'cat'=>$instance['cat'], 'latest'=>$instance['maxlatestproducts']), 0, $templatemode);		
+		if($instance['showlatest']){
+			$content .= magento::getProductOutput(array('pid'=>$instance['pid'], 'cat'=>$instance['cat'], 'latest'=>$instance['maxlatestproducts']), 0, $templatemode);		
+		}else{
+			$content .= magento::getProductOutput(array('pid'=>$instance['pid'], 'cat'=>$instance['cat']), 0, $templatemode);
+		}
 		
 		echo $content;
 	}

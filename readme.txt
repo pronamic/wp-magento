@@ -129,13 +129,14 @@ number, including zero. Setting the number of latest products shown to zero will
 output all products.
 
 = User instructions - Creating custom templates =
-The predefined template in the templates map op this plugin should give you a good idea of how
-to create a custom template for your plugin. Of course you could adapt the original one as it
-is in the templates map of this plugin, but copying the template file to your theme map (without
-changing it's name) to adapt it there would be a better solution. The plugin will automatically
-fetch the custom template file if it's found in your theme map (don't put it in a subfolder).
+The predefined template in the templates map of this plugin should give you a good idea of how
+to create a custom template for your plugin. We recommend copying the template file to your theme 
+map (without changing it's name) and changing it's content to your likings. The plugin will 
+automatically fetch the custom template file if it's found in your theme map (don't put it in a 
+subfolder). The same goes for the widget template.
 
-The same goes for a custom css file.
+The CSS can be overridden by your own in your style.css file. Our default stylesheet is registered
+under the name 'pronamic-magento-plugin-stylesheet' and thus can be deregistered.
 
 
 == Changelog ==
@@ -145,7 +146,7 @@ The same goes for a custom css file.
 *	Made multiple 'pid' input possible. Comma seperated.
 *	Added shortcode 'cat'. Input a String with a category name to get a fixed number of three random (or less if there are less than three products with this category) products.
 *	Shortcode 'cat' accepts category_id (int) now as well, which is faster.
-*	Caching added. Caching can be switched on or off in the settings, also setting caching time is possible.
+*	Caching added. Caching can be switched on or off in the settings.
 *	Made plugin available as widget.
 *	New shortcode latest='$numberofshownproducts' implemented specifically for the widget, but useable for the shortcode as well. Shows latest $number of products. If no number is given (string, array or boolean put in), no products will be shown.
 *	Improved caching on every API call.

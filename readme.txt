@@ -50,7 +50,7 @@ To show your products in one of your posts or pages you can write a line of shor
 Where ever you write the line of shortcode in your post or page, the products will apear. A
 piece of shortcode would look a bit like the following:
 
-[magento pid='' cat='' latest='']
+[magento pid='' cat='' latest='' name_like='']
 
 This shortcode will not show any products yet, because we haven't set any of the values yet.
 Lets say we have two products, a t-shirt with product ID 1 and a pair of pants with product 
@@ -120,7 +120,7 @@ Note that using the 'cat' key twice in the same piece of shortcode is useless. A
 to know is that getting the category by ID is always faster, especially for the larger stores. The 
 larger the category, the longer the loading time.
 
-The last key would be 'latest'. This key will show all latest products when not given a
+The next key would be 'latest'. This key will show all latest products when not given a
 value, or given a value smaller than or equal to zero. When given a positive number greater
 than zero, it wil output that given number of products. The function cannot show anymore
 products than available in the database. An example:
@@ -131,25 +131,70 @@ Or:
 
 [magento latest='3']
 
-= User instructions - For showing products in a widget =
-The widget should be a little more easy to configure, when going to your theme's widget page
-you can instantly see the Pronamic Magento Plugin Sidebar Widget. Drag it into one of the
-sidebars you will be able to configure it. By default, it doesn't show anything.
+Another key is the 'name_like' key. This key can be used for looking in the database to search for
+products with a similar name. This key takes two arguments, the argument is the word or part of a
+word to look for and the second argument defines how many products should be shown. Let's say your
+database contains three records with the word 'ball' in it: 'red ball', 'blue ball' and 'balls'.
+To show all of these records, we would write a shortcode which look a little like this:
 
-Basicly, the first two fields work the same way as they do in the shortcode. The product ID's
-or SKU's should be put in separated by commas. The category accepts a category name or ID and
-does not accept multiple entries. Setting the 'Show latest products' to 'Yes' will show the
-3 latest products by default. After saving a field apears in which this can be changed to any
-number, including zero. Setting the number of latest products shown to zero will make the widget
-output all products.
+[magento name_like='ball']
+
+This piece of shortcode would show every product with the word 'ball' in it. Of course you don't 
+always want to show all products, but only a few. Let's try to only get two products with the word
+'ball' in them.
+
+[magento name_like='ball, 2']
+
+Now only two products are put out by the shortcode. The shortcode does not output more products than
+it finds. The 'name_like' key works with what usually are called 'wildcards'. In our plugin, these
+wildcards are '%' signs. If you decide you would like to search only at one side of the word, for
+instance the right side, you could use a shortcode like the following: 
+
+[magento name_like='ball%']
+
+Assuming we are still using the same database with the balls, this piece of shortcode would output
+only the 'balls' record, because it searched the database for words that started with the word 'ball'.
+
+= User instructions - For showing products in a widget =
+The widgets should be a little more easy to configure. After activating the plugin on your plugins
+page, the widgets should show in your widget admin page. There are two widgets, 'Magento Products' and 
+'Magento Latest Products'. The first one can show products by ID or SKU, by category and by a word to
+look for in the database. All fields work exactly like the ones described in the shortcode tutorial.
+The second widget shows the latest products, it only takes one field which is how many products should
+be shown. If this field is set to zero, the widget will show all products. Multiple instances of each
+widget can be created.
 
 = User instructions - Creating custom templates =
-The predefined template in the templates map of this plugin should give you a good idea of how
-to create a custom template for your plugin. We recommend copying the template file to your theme 
-map (without changing it's name) and changing it's content to your likings. The plugin will 
-automatically fetch the custom template file if it's found in your theme map (don't put it in a 
-subfolder). The same goes for the widget template.
+This part of the tutorial will explain how to create custom layouts for your shortcode and widget
+output. For every widget you can create a different layout, this is not possible for shortcode
+output. The templates in our plugin's templates folder should give you a good idea of how to
+customize a template of your own. We disencourage attempting to adapt the default template files.
 
+= Custom shortcode template =
+If you want to customize the layout of the outputted html of the shortcode, you should copy a
+template file from our plugin's template folder and paste it into your wordpress theme folder.
+The template file contains a description of the different functions you can use to show your
+products with. The template should be named: "magento-products-shortcode.php".
+
+= Custom widget template =
+Customizing the widget template can be done with one collective custom widget template (which
+means it's a custom templates for every widget, except the ones that already have a custom template
+file of their own), but also every widget can has his own separate template. This last feature
+comes in handy when you use our widgets both in the sidebar and in the footer. You might want to 
+use separate layouts for both of them. 
+Customizing the collective template file for widgets is a lot like creating a custom template for
+the output of the shortcode, you copy a template file to your theme's folder and name it:
+"magento-products-widget.php".
+When you'd like a widget to have a separate layout from the others, you'll have to activate this
+widget and load the page on your website it's shown on. When you right click in your browser a
+little menu will appear with an option in it for looking at the website's source code. Click it and
+scroll through the page of code that shows up. You should look for a line of code that looks like
+this: "<!-- -- -- The Widget ID for this widget is: "magento-products3" -- -- -->". The ID of that 
+specific widget is shown there. This you can use to name a custom template file with. Again, you 
+copy a default template file from our plugin's template folder and paste it to your theme folder. 
+You should rename the file to something like this: "magento-products-magento-products3.php".
+
+= Custom CSS =
 The CSS can be overridden by your own in your style.css file. Our default stylesheet is registered
 under the name 'pronamic-magento-plugin-stylesheet' and thus can be deregistered.
 

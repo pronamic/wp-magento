@@ -485,7 +485,7 @@ class Magento {
 					$result = $client->call($session, 'catalog_product.list');
 					self::setAPICacheResults('magento-getProductList', $result);
 				}
-			}catch(Exception $e){echo 'went wrong';	}
+			}catch(Exception $e){	}
 		}
 		
 		return $result;
@@ -613,7 +613,13 @@ class Magento {
 		$templates = array('magento-products-'.$templatemode.'.php');
 		$template = locate_template($templates);
 		if(!$template){
-			$template = 'templates/magento-products-default.php';
+			if($templatemode != 'shortcode'){ // This is used for the collective custom widget template file.
+				$templates = array('magento-products-widget.php');
+				$template = locate_template($templates);
+			}
+			if(!$template){
+				$template = 'templates/magento-products-default.php';
+			}
 		}
 		
 		return $template;

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pronamic Magento Plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-12 11:50+0100\n"
-"PO-Revision-Date: 2011-10-12 11:50+0100\n"
+"POT-Creation-Date: 2011-10-14 16:19+0100\n"
+"PO-Revision-Date: 2011-10-14 16:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: Pronamic <info@pronamic.nl>\n"
 "MIME-Version: 1.0\n"
@@ -16,77 +16,25 @@ msgstr ""
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: sidebarWidget.php:9
-msgid "The widget version of the Pronamic Magento plugin."
-msgstr "De widget versie van de Pronamic Magento plugin"
-
-#: sidebarWidget.php:15
-msgid "Pronamic Magento Plugin Sidebar Widget"
-msgstr "Pronamic Magento Plugin Sidebar Widget"
-
-#: sidebarWidget.php:29
-msgid "Product ID's or SKU's (Comma separated):"
-msgstr "Product ID's of SKU's (Komma gescheiden)"
-
-#: sidebarWidget.php:34
-msgid "Category name or ID:"
-msgstr "Categorie naam of ID"
-
-#: sidebarWidget.php:39
-msgid "Show latest products"
-msgstr "Laat nieuwste producten zien"
-
-#: sidebarWidget.php:41
-#: sidebarWidget.php:56
-#: page-settings.php:61
-msgid "Yes"
-msgstr "Ja"
-
-#: sidebarWidget.php:42
-#: sidebarWidget.php:57
-#: page-settings.php:60
-msgid "No"
-msgstr "Nee"
-
-#: sidebarWidget.php:48
-msgid "Number of latest products shown"
-msgstr "Aantal getoonde nieuwste producten"
-
-#: sidebarWidget.php:54
-msgid "Use separate template"
-msgstr "Gebruik afgescheiden template"
-
-#: magento.php:120
+#: magento.php:122
 msgid "Unable to login to host with that username/password combination."
 msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host met de huidige gebruikersnaam/wachtwoord combinatie."
 
-#: magento.php:123
+#: magento.php:125
 msgid "Unable to connect to host."
 msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host."
 
-#: magento.php:214
-msgid "We're sorry, we weren't able to find any products with the queried category id."
-msgstr "Het spijt ons, de plugin was niet in staat producten te vinden met de gevraagde ID's"
-
-#: magento.php:320
-msgid "Unable to obtain any products."
-msgstr "Het spijt ons, de plugin was niet in staat producten op te halen."
-
-#: magento.php:356
+#: magento.php:390
 msgid "Detected an error in the template file, actions have been interupted."
 msgstr "Er is een fout aangetroffen in het template bestand, de acties zijn onderbroken."
 
-#: magento.php:438
-msgid "We're sorry, we were unable to obtain any categories."
-msgstr "Het spijt ons, de plugin was niet in staat de categorie&#235;n op te halen."
-
-#: magento.php:533
-#: magento.php:534
+#: magento.php:687
+#: magento.php:688
 msgid "Magento"
 msgstr "Magento"
 
-#: magento.php:545
-#: magento.php:546
+#: magento.php:699
+#: magento.php:700
 msgid "Settings"
 msgstr "Instellingen"
 
@@ -122,9 +70,64 @@ msgstr "API sleutel"
 msgid "Caching"
 msgstr "Caching"
 
-#: page-settings.php:65
+#: page-settings.php:62
 msgid "Should we save product results returned by the Magento API? Saving results increases loading performance."
 msgstr "Mogen we de productresultaten afkomstig van de Magento API opslaan? Dit verbetert laadprestaties."
+
+#: Magento_Products_Widget.php:9
+msgid "The widget version of the Pronamic Magento plugin."
+msgstr "De widget versie van de Pronamic Magento plugin"
+
+#: Magento_Products_Widget.php:15
+msgid "Magento Products"
+msgstr "Magento Producten"
+
+#: Magento_Products_Widget.php:29
+msgid "Product ID's or SKU's (Comma separated):"
+msgstr "Product ID's of SKU's (Komma gescheiden)"
+
+#: Magento_Products_Widget.php:34
+msgid "Category name or ID:"
+msgstr "Categorie naam of ID"
+
+#: Magento_Products_Widget.php:39
+msgid "Find products with a name like:"
+msgstr "Zoek producten met een naam als:"
+
+#: Magento_Products_Widget.php:44
+msgid "Show latest products"
+msgstr "Laat nieuwste producten zien"
+
+#: Magento_Products_Widget.php:50
+msgid "Number of latest products shown"
+msgstr "Aantal getoonde nieuwste producten"
+
+#~ msgid "Pronamic Magento Plugin Sidebar Widget"
+#~ msgstr "Pronamic Magento Plugin Sidebar Widget"
+
+#~ msgid "Yes"
+#~ msgstr "Ja"
+
+#~ msgid "No"
+#~ msgstr "Nee"
+
+#~ msgid "Use separate template"
+#~ msgstr "Gebruik afgescheiden template"
+
+#~ msgid ""
+#~ "We're sorry, we weren't able to find any products with the queried "
+#~ "category id."
+#~ msgstr ""
+#~ "Het spijt ons, de plugin was niet in staat producten te vinden met de "
+#~ "gevraagde ID's"
+
+#~ msgid "Unable to obtain any products."
+#~ msgstr "Het spijt ons, de plugin was niet in staat producten op te halen."
+
+#~ msgid "We're sorry, we were unable to obtain any categories."
+#~ msgstr ""
+#~ "Het spijt ons, de plugin was niet in staat de categorie&#235;n op te "
+#~ "halen."
 
 #~ msgid "Show mode:"
 #~ msgstr "Modus"

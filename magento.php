@@ -3,7 +3,7 @@
 Plugin Name: Magento.
 Plugin URI: http://pronamic.eu/wordpress/magento/
 Description: Integrate Magent content into your WordPress website. 
-Version: beta-0.1
+Version: 0.1-beta
 Requires at least: 3.0
 Author: Pronamic
 Author URI: http://pronamic.eu/
@@ -25,7 +25,7 @@ class Magento {
 		
 		add_action('admin_menu', array(__CLASS__, 'adminMenu'));
 		
-		add_action('widgets_init', array(__CLASS__, 'Magento_Products_Widget'));
+		add_action('widgets_init', array(__CLASS__, 'Magento_Widgets'));
 	}
 
 	public static function initialize() {
@@ -171,7 +171,15 @@ class Magento {
 		// Whenever shortcode 'cat' is parsed, these actions will happen.
 		if(isset($atts['cat'])){
 			if(!empty($atts['cat'])){
-				$cat = strtolower(trim($atts['cat']));
+				$settings = explode(',', $atts['cat']);
+				$cat = strtolower(trim($settings[0]));
+				$maxproducts = 0;
+				if(isset($settings[1]))	$maxproducts = strtolower(trim($settings[1]));
+				if(!is_numeric($maxproducts)){
+					$maxproducts = 0;
+				}elseif(empty($maxproducts)){
+					$maxproducts = 0;
+				}
 				$result = '';
 				$cat_id = '';
 				
@@ -209,32 +217,17 @@ class Magento {
 				
 				// If there's a result on our query. (or just a numeric string was parsed)
 				if(!empty($cat_id)){
-					// Get list of all products so we can filter out the required ones.					
-					$productlist = self::getProductList($client, $session);
+					$result = ''; 
+					$result = self::getProductsByCategoryID($client, $session, 0, $cat_id);
 					
-					// Extract the productIds from the productlist where the category_ids are cat_id. Put them in productIds array.
-					if($productlist){
-						$productId = '';
+					if(!empty($result)){
 						$i = 0;
-						$break = false;
-						foreach($productlist as $key=>$value){
-							foreach($value as $key2=>$value2){
-								if($key2 == 'product_id'){
-									$productId = $value2;
-								}
-								if($key2 == 'category_ids'){
-									foreach($value2 as $value3){
-										if($value3 == $cat_id){
-											$productIds[] = $productId;
-											$i++;
-											if($maxproducts > 0 && $i >= $maxproducts) $break = true;
-										}
-										if($break) break;
-									}
-								}
-								if($break) break;
+						foreach($result as $value){
+							$productIds[] = $value['product_id'];
+							$i++;
+							if($i >= $maxproducts && $maxproducts > 0){
+								break;
 							}
-							if($break) break;
 						}
 					}
 				}
@@ -246,55 +239,99 @@ class Magento {
 			if(empty($atts['latest'])){
 				$atts['latest'] = 0;
 			}
+			$maxproducts = strtolower(trim($atts['latest']));
+			$result = '';
 			
-			$result = self::getProductList($client, $session);
-			if(!empty($result)){
-				$pids = array();
-				foreach($result as $value){
-					$pids[] = $value['product_id'];
-				}
-				
-				$products = self::getProductListByIDs($pids, $client, $session);
-				if(!empty($products)){
-					$datearray = array();
-					foreach($products as $value){
-						$datearray[$value['product_id']] = preg_replace('/[^a-z0-9]/', '', $value['created_at']);
+			// Get products
+			if($maxproducts > 0 && is_numeric($maxproducts)){
+				$count = 0;
+				for($i=1; $count<$maxproducts; $i++){
+					$filter = array('created_at' => array('from' => date('o-m-d H:i:s', strtotime('-'.$i.' months'))));
+					$result = self::getProductList($client, $session, $filter);
+					$count = count($result);
+					if($i > 100){
+						//break;
 					}
-					
-					$tmp = $datearray;
-					sort($tmp);
-					$tmp = array_reverse($tmp);
-					
-					$maxproducts = $atts['latest'];
-					if(is_numeric($maxproducts)){
-						if($maxproducts == 0){
-							$neededdates = $tmp;
-						}else{
-							$neededdates = array_slice($tmp, -$maxproducts);
-						}
-						
-						foreach($datearray as $key=>$value){
-							foreach($neededdates as $value2){
-								if($value2 == $value){
-									$productIds[] = $key;
-								}
+				}
+				$result = array_slice($result, -$maxproducts);
+			}else{
+				$result = self::getProductList($client, $session, '');
+			}
+			
+			// Put latest products first
+			$result = array_reverse($result);
+			
+			// Get all product ids and give them to the $productIds array
+			if(!empty($result)){
+				foreach($result as $value){
+					$productIds[] = $value['product_id'];
+				}
+			}
+		}// Finished walking through latest products
+		
+		if(isset($atts['name_like'])){
+			if(!empty($atts['name_like'])){
+				$settings = explode(',', $atts['name_like']);
+				$needle = $settings[0];
+				if(isset($settings[1])) $maxproducts = strtolower(trim($settings[1]));
+				else $maxproducts = 0;
+				if(!is_numeric($maxproducts)) $maxproducts = 0;
+				$result = '';
+				
+				// Get results, if the user added %%%'s he probably knows what he's doing, so let him do his bussines. If he didn't, we should probably help him in his quest to find products.
+				unset($tmp);
+				$tmp = strpos(' '.$needle, '%');
+				if(!empty($tmp)){
+					$filter = array('name' => array('like' => $needle));
+					$result = self::getProductList($client, $session, $filter);
+				}else{
+					function arrayAdder($existingarray, $values){
+						if(is_array($existingarray) && is_array($values)){
+							foreach($values as $value){
+								$existingarray[] = $value;
 							}
 						}
+						return $existingarray;
+					}
+					
+					// Walk through the search posibilities getting the results while there are not enough products found yet.
+					$keywords = array($needle, $needle.'%', '%'.$needle, '%'.$needle.'%');
+					$array = array();
+					foreach($keywords as $keyword){
+						$filter = array('name' => array('like' => $keyword));
+						$result = self::getProductList($client, $session, $filter);
+						$array = arrayAdder($array, $result);
+						
+						if(count($array) >= $maxproducts && $maxproducts > 0){
+							break;
+						}
+					}				
+					$result = $array;
+				}
+				
+				// When products were found
+				if(!empty($result)){
+					$count = count($result);
+					if($count > $maxproducts){
+						$result = array_slice($result, -$maxproducts);
+					}
+					
+					foreach($result as $value){
+						$productIds[] = $value['product_id'];
 					}
 				}
 			}
-		}// Finished walking through last articles
+		}// Finished $atts['name_like'];
 		
 		/*
 		/**
 		 * Test attribute.
-		 */
-		
+		 */		
 		if(isset($atts['test'])){
-			$result = self::getProductByID(787, $client, $session);
-			var_dump($result);
+			//$result = self::getProductList($client, $session, '');
+			//$result = self::getProductByID(18, $client, $session);
+			//var_dump($result);
 		}
-		
 		
 		return $productIds;
 	}
@@ -321,18 +358,15 @@ class Magento {
 			
 			// Get product information and images from specified product ID.
 			$result = self::getProductByID($productId, $client, $session);
-			$images = self::getImageByProductID($productId, $client, $session);
+			$images = self::getImagesByProductID($productId, $client, $session);
 			
 			// Build up the obtained information (if any) and pass them on in the $content variable which will be returned.
 			if($result){
-				if($images){
-					$image = $images[0];
-					$image = $image['url'];
-				}else{
-					unset($image);
-					$image = '';
+				if(!$images){
+					unset($images);
+					$images = '';
 				}
-								
+				
 				// Check if base url ends correctly (with a /)
 				if($url[strlen($url)-1] != '/'){
 					$url .= '/';
@@ -341,8 +375,8 @@ class Magento {
 				// Adjust resul's url path
 				$result['url_path'] = $url . $result['url_path'];
 				
-				// Place the result and the image in an array that will be looped through in the template. Format: array('1' => array('result' => $result, 'image' => $image))
-				$magento_products[] = array('result' => $result, 'image' => $image);
+				// Place the result and the image in an array that will be looped through in the template. Format: array('1' => array('result' => $result, 'images' => $images))
+				$magento_products[] = array('result' => $result, 'images' => $images);
 			}
 		}
 		
@@ -398,17 +432,13 @@ class Magento {
 	 * @param String $session
 	 */
 	public static function getProductByID($productId, $client, $session){
-		$result = '';	
-		if(get_option('magento-caching-option')){
-			$result = get_transient('magento-CachedProduct'.$productId);
-		}
+		$result = '';
+		$result = self::getAPICacheResults('magento-CachedProduct'.$productId);
 		
 		if(empty($result)){
 			try{
 				$result = $client->call($session, 'catalog_product.info', $productId);
-				if(get_option('magento-caching-option')){
-					set_transient('magento-CachedProduct'.$productId, $result, self::CACHETIME);
-				}
+				self::setAPICacheResults('magento-CachedProduct'.$productId, $result);
 			}catch(Exception $e){	}	
 		}
 		
@@ -422,18 +452,14 @@ class Magento {
 	 * @param Object $client
 	 * @param String $session
 	 */
-	public static function getImageByProductID($productId, $client, $session){
-		$image = '';
-		if(get_option('magento-caching-option')){
-			$image = get_transient('magento-CachedImage'.$productId);
-		}
+	public static function getImagesByProductID($productId, $client, $session){
+		$image = '';		
+		$image = self::getAPICacheResults('magento-CachedImage'.$productId);
 		
 		if(empty($image)){
 			try{
 				$image = $client->call($session, 'product_media.list', $productId);
-				if(get_option('magento-caching-option')){
-					set_transient('magento-CachedImage'.$productId, $image, self::CACHETIME);
-				}
+				self::setAPICacheResults('magento-CachedImage'.$productId, $image);
 			}catch(Exception $e){	}
 		}
 		
@@ -446,19 +472,20 @@ class Magento {
 	 * @param String $apiKey
 	 * @param Object $client
 	 */
-	private static function getProductList($client, $session){
+	private static function getProductList($client, $session, $filter){
 		$result = '';
-		if(get_option('magento-caching-option')){
-			$result = get_transient('magento-getProductList');
-		}
+		
+		$result = self::getAPICacheResults('magento-getProductList');
 		
 		if(empty($result)){
 			try{
-				$result = $client->call($session, 'catalog_product.list');
-				if(get_option('magento-caching-option')){
-					set_transient('magento-getProductList', $result, self::CACHETIME);
+				if(!empty($filter)){
+					$result = $client->call($session, 'catalog_product.list', array($filter));
+				}else{
+					$result = $client->call($session, 'catalog_product.list');
+					self::setAPICacheResults('magento-getProductList', $result);
 				}
-			}catch(Exception $e){	}
+			}catch(Exception $e){echo 'went wrong';	}
 		}
 		
 		return $result;
@@ -482,22 +509,20 @@ class Magento {
 			$cachename .= $value;
 		}
 		
-		if(get_option('magento-caching-option') && !empty($cachename)){
-			$array = get_transient('magento-getProductListByIDs'.$cachename);
-		}
+		$array = self::getAPICacheResults('magento-getProductListByIDs'.$cachename);
 		
 		if(empty($array)){
 			$error = '';
 			foreach($productIds as $productId){
 				try{
 					$result = $client->call($session, 'catalog_product.info', $productId);
-					$array[] = $result;
+					$array[] = $result;					
 				}catch(Exception $e){
 					$error .= 'An error occured <br />';
 				}
 			}
 			if(empty($error)){
-				set_transient('magento-getProductListByIDs'.$cachename, $array, self::CACHETIME);
+				self::setAPICacheResults('magento-getProductListByIDs'.$cachename, $array);
 			}
 		}
 		
@@ -512,20 +537,70 @@ class Magento {
 	 */
 	private static function getCategoryList($client, $session){
 		$result = '';
-		if(get_option('magento-caching-option')){
-			$result = get_transient('magento-getCategoryList');
-		}
-		
+		$result = self::getAPICacheResults('magento-getCategoryList');
+
 		if(empty($result)){
 			try{
 				$result = $client->call($session, 'catalog_category.tree');
-				if(get_option('magento-caching-option')){
-					set_transient('magento-getCategoryList', $result, self::CACHETIME);
-				}
+				self::setAPICacheResults('magento-getCategoryList', $result);
 			}catch(Exception $e){	}
 		}
 		
 		return $result;
+	}
+	
+	/**
+	 * Returns products assigned to a certain category id
+	 *  
+	 * @param Object $client
+	 * @param String $session
+	 * @param int $storeID
+	 * @param int $categoryID
+	 */
+	public static function getProductsByCategoryID($client, $session, $storeID, $categoryID){
+		$result = '';
+		$result = self::getAPICacheResults('magento-getProductsByCategoryID');
+				
+		if(empty($result) && isset($storeID) && isset($categoryID)){
+			try{
+				$result = $client->call($session, 'category.assignedProducts', array($categoryID, $storeID));
+				self::setAPICacheResults('magento-getProductsByCategoryID', $result);
+			}catch(Exception $e){	echo 'wrong';}
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Save API call results in a transient
+	 * 
+	 * @param String $cachename
+	 * @param Any variable $result
+	 * @return true on succes
+	 */
+	private static function setAPICacheResults($cachename, $result){
+		if(get_option('magento-caching-option')){
+			set_transient($cachename, $result, self::CACHETIME);
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns the cached results of a saved API call if this fails, returns an empty string.
+	 * 
+	 * @param String $cachename
+	 * @return $result on succes, empty string on failure
+	 */
+	private static function getAPICacheResults($cachename){
+		$result = '';
+		if(get_option('magento-caching-option')){
+			$result = get_transient($cachename);
+			if(!empty($result)){
+				return $result;
+			}
+		}
+		return '';
 	}
 	
 	/**
@@ -534,11 +609,11 @@ class Magento {
 	 * @return String $template (Location to template file, custom or default)
 	 */
 	private static function getTemplate($templatemode){
-		if(empty($templatemode)) $templatemode = 'shortcode';
-		$templates = array('templates/magento-products-'.$templatemode.'.php');
+		if(empty($templatemode)) $templatemode = 'default';
+		$templates = array('magento-products-'.$templatemode.'.php');
 		$template = locate_template($templates);
 		if(!$template){
-			$template = 'templates/magento-products-'.$templatemode.'.php';
+			$template = 'templates/magento-products-default.php';
 		}
 		
 		return $template;
@@ -646,8 +721,9 @@ class Magento {
 		}
 	}
 	
-	public static function Magento_Products_Widget(){
+	public static function Magento_Widgets(){
 		register_widget('Magento_Products_Widget');
+		register_widget('Magento_Latest_Products_Widget');
 	}
 
 	public static function page() {

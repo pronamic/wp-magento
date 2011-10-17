@@ -3,7 +3,7 @@ Contributors: pronamic, remcotolsma, stefanboonstra
 Tags: magento, webshop, e-commerce
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: beta-0.1
+Stable tag: 0.1-beta
 
 Integrate Magento content into your WordPress website. 
 
@@ -90,9 +90,7 @@ removed when you put in just one value, but removing them doesn't really gain yo
 
 Moving on to the next key, 'cat'. The key 'cat' stands for category and will accept either a
 category name or ID. The result of 'cat', if any, will output all products found in the
-requested category. It does not accept more than one value, unlike the 'pid' key. Apostrophes 
-aren't required for the 'cat' key, it's a matter of taste wether you decide to use them or not.
-Let's say there's a category 'jeans' with category ID 5. Here's the shortcode:
+requested category. Let's say there's a category 'jeans' with category ID 5. Here's the shortcode:
 
 [magento cat='jeans']
 
@@ -101,9 +99,26 @@ the same result using the category's ID:
 
 [magento cat='5']
 
-Note that using the 'cat' key twice in the same piece of shortcode also is useless. Also a
-nice thing to know is that getting the category by ID is a little faster than getting the
-category by name.
+Using the 'cat' key with one value will output all products in the category. You might not always
+want that, so as a second argument for this key you can define a number which will serve as the
+maximum number of products shown. If you only want three get three products the shortcode would
+look a bit like this:
+
+[magento cat='jeans, 3']
+
+Or:
+
+[magento cat='5, 3']
+
+Pay good attention to how the arguments are separated: Using a comma. If you want the function
+to show three products but there just aren't that many products in that category, as many products
+as possible will be output. Which means that if there are just two products in the category, two
+products are shown. Not using the second argument or setting the second argument to zero, will
+make the function show all products in the category.
+
+Note that using the 'cat' key twice in the same piece of shortcode is useless. Also a nice thing 
+to know is that getting the category by ID is always faster, especially for the larger stores. The 
+larger the category, the longer the loading time.
 
 The last key would be 'latest'. This key will show all latest products when not given a
 value, or given a value smaller than or equal to zero. When given a positive number greater
@@ -150,6 +165,10 @@ under the name 'pronamic-magento-plugin-stylesheet' and thus can be deregistered
 *	Made plugin available as widget.
 *	New shortcode latest='$numberofshownproducts' implemented specifically for the widget, but useable for the shortcode as well. Shows latest $number of products. If no number is given (string, array or boolean put in), no products will be shown.
 *	Improved caching on every API call.
+*	Added function for showing multiple images of one product to the templates.
+*	Improved product fetching for bigger stores.
+*	Added second argument for 'cat' key, maximum number of products shown.
+*	Added new shortcode key 'name_like' which will search a product name that is like the given value. The second argument is how many products should maximally show.
 
 
 == Links ==

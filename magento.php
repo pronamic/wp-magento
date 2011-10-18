@@ -474,16 +474,11 @@ class Magento {
 	 */
 	private static function getProductList($client, $session, $filter){
 		$result = '';
-		
 		$result = self::getAPICacheResults('magento-getProductList');
 		
 		if(empty($result)){
 			try{
 				if(!empty($filter)){
-					//function test($key, $value){
-						
-					//}
-					//array_walk_recursive($filter, test);
 					$result = $client->call($session, 'catalog_product.list', array($filter));
 				}else{
 					$result = $client->call($session, 'catalog_product.list');

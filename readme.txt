@@ -45,7 +45,7 @@ When you have configured the plugin correctly (as described above), you'll be ab
 contact your Magento store and start showing some products on your WordPress site.
 This short guide will show you how to use both the plugin and the widget of our plugin.
 
-= User instructions - For showing products in posts/pages =
+= User instructions - Showing products in posts/pages using shortcode =
 To show your products in one of your posts or pages you can write a line of shortcode into it.
 Where ever you write the line of shortcode in your post or page, the products will apear. A
 piece of shortcode would look a bit like the following:
@@ -155,7 +155,7 @@ instance the right side, you could use a shortcode like the following:
 Assuming we are still using the same database with the balls, this piece of shortcode would output
 only the 'balls' record, because it searched the database for words that started with the word 'ball'.
 
-= User instructions - For showing products in a widget =
+= User instructions - Showing products in a widget =
 The widgets should be a little more easy to configure. After activating the plugin on your plugins
 page, the widgets should show in your widget admin page. There are two widgets, 'Magento Products' and 
 'Magento Latest Products'. The first one can show products by ID or SKU, by category and by a word to

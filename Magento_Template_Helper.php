@@ -72,10 +72,10 @@ class Magento_Template_Helper{
 			}
 			
 			if(isset($this->magento_products[$this->i]['result']['special_price'])){
-				if(!behind){				
-					echo '<del>'.$currency; echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator); echo '</del> <b>'; echo this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo '</b>';
+				if(!$behind){				
+					echo '<del>'.$currency; echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo '</del> <b>'; echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo '</b>';
 				}else{
-					echo '<del>'; echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator); echo ' '.$currency.'</del> <b>'; echo this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo $currency.'</b>';
+					echo '<del>'; echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo ' '.$currency.'</del> <b>'; echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo $currency.'</b>';
 				} 
 			}else{
 				if(!$behind){
@@ -96,7 +96,7 @@ class Magento_Template_Helper{
 	 * @param String $thousandsseparator
 	 * @return float The number in a new format
 	 */
-	private function this_number_format($number, $decimals, $decimalseparator, $thousandsseparator){
+	public function this_number_format($number, $decimals, $decimalseparator, $thousandsseparator){
 		return number_format($number, $decimals, $decimalseparator, $thousandsseparator);
 	}
 	

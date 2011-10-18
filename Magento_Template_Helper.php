@@ -67,6 +67,10 @@ class Magento_Template_Helper{
 				$thousandsseparator = ',';
 			}
 			
+			if($behind && strlen($currency) > 1){
+				$currency = ' '.$currency;
+			}
+			
 			if(isset($this->magento_products[$this->i]['result']['special_price'])){
 				if(!behind){				
 					echo '<del>'.$currency; echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator); echo '</del> <b>'; echo this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo '</b>';

@@ -47,17 +47,53 @@ class Magento_Template_Helper{
 	 * Prints the price, when there's a discount it prints the price
 	 * striped out, with the discount price behind it.
 	 */
-	public function product_price($currency){
-		if(!isset($currency)){
-			$currency = '';
-		}
+	public function product_price($currency = '', $behind = false, $decimals = 2, $decimalseparator = '.', $thousandsseparator = ','){
 		if($this->inside_product_loop()){
+			if(!isset($currency)){
+				$currency = '';
+			}
+			if(!isset($behind)){
+				$behind = false;
+			}
+			if(!isset($decimals)){
+				$decimals = 2;
+			}elseif(!is_numeric($decimals)){
+				$decimals = 2;
+			}
+			if(!isset($decimalseparator)){
+				$decimalseparator = '.';
+			}
+			if(!isset($thousandsseparator)){
+				$thousandsseparator = ',';
+			}
+			
 			if(isset($this->magento_products[$this->i]['result']['special_price'])){
-				echo '<del>'; $this->product_default_price(); echo '</del> <b>' . $currency; $this->product_special_price(); echo '</b>'; 
+				if(!behind){				
+					echo '<del>'.$currency; echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator); echo '</del> <b>'; echo this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo '</b>';
+				}else{
+					echo '<del>'; echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator); echo ' '.$currency.'</del> <b>'; echo this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo $currency.'</b>';
+				} 
 			}else{
-				echo $this->product_default_price();
+				if(!$behind){
+					echo $currency; echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator);
+				}else{
+					echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator); echo $currency;
+				}
 			}
 		}
+	}
+	
+	/**
+	 * Returns the formatted input.
+	 * 
+	 * @param float $number
+	 * @param int $decimals
+	 * @param String $decimalseparator
+	 * @param String $thousandsseparator
+	 * @return float The number in a new format
+	 */
+	private function this_number_format($number, $decimals, $decimalseparator, $thousandsseparator){
+		return number_format($number, $decimals, $decimalseparator, $thousandsseparator);
 	}
 	
 	/**

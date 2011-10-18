@@ -12,7 +12,7 @@ License: GPL
 
 class Magento {
 	//const CACHETIME = 86400; // 24hrs (60*60*24);
-	const CACHETIME = 300; // 1 minute.
+	const CACHETIME = 300; // 5 minutes.
 	private static $soapClient;
 	private static $session;
 	
@@ -480,6 +480,10 @@ class Magento {
 		if(empty($result)){
 			try{
 				if(!empty($filter)){
+					//function test($key, $value){
+						
+					//}
+					//array_walk_recursive($filter, test);
 					$result = $client->call($session, 'catalog_product.list', array($filter));
 				}else{
 					$result = $client->call($session, 'catalog_product.list');

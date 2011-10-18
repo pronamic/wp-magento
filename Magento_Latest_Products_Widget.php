@@ -61,7 +61,7 @@ class Magento_Latest_Products_Widget extends WP_Widget{
 		// Content
 		$content = '';
 		$templatemode = $args['widget_id'];
-		$content .= magento::getProductOutput(array('latest'=>$instance['maxlatestproducts']), 0, $templatemode);
+		if(isset($instance['maxlatestproducts'])) $content .= magento::getProductOutput(array('latest'=>$instance['maxlatestproducts']), 0, $templatemode);
 		
 		echo $content;
 	}	

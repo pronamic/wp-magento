@@ -162,7 +162,7 @@ page, the widgets should show in your widget admin page. There are two widgets, 
 look for in the database. All fields work exactly like the ones described in the shortcode tutorial.
 The second widget shows the latest products, it only takes one field which is how many products should
 be shown. If this field is set to zero, the widget will show all products. Multiple instances of each
-widget can be created.
+widget can be created. When activating your widget, you might have to save before any product shows.
 
 = User instructions - Creating custom templates =
 This part of the tutorial will explain how to create custom layouts for your shortcode and widget

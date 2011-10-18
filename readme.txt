@@ -50,7 +50,7 @@ To show your products in one of your posts or pages you can write a line of shor
 Where ever you write the line of shortcode in your post or page, the products will apear. A
 piece of shortcode would look a bit like the following:
 
-[magento pid='' cat='' latest='' name_like='']
+[magento pid=' ' cat=' ' latest=' ' name_like=' ']
 
 This shortcode will not show any products yet, because we haven't set any of the values yet.
 Lets say we have two products, a t-shirt with product ID 1 and a pair of pants with product 
@@ -81,7 +81,7 @@ the shortcode does not function properly anymore:
 Also note that using a key like 'pid', 'cat' or 'latest' a second time in the same piece of
 shortcode will replace the the previously set value and thus there's no use in doing this:
 
-[magento pid='2' pid='1']	<- This is not recommended.
+[magento pid='2' pid='1']	<- This will only output the product with ID or SKU '1'.
 
 The shortcode above will only output the t-shirt (which in our example has product ID 1). Other
 things might worth knowing about the 'pid' key is that there's no limitation to the number of
@@ -125,7 +125,7 @@ value, or given a value smaller than or equal to zero. When given a positive num
 than zero, it wil output that given number of products. The function cannot show anymore
 products than available in the database. An example:
 
-[magento latest='']
+[magento latest=' ']
 
 Or:
 

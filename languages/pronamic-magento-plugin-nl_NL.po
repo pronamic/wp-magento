@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pronamic Magento Plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-14 16:19+0100\n"
-"PO-Revision-Date: 2011-10-14 16:34+0100\n"
+"POT-Creation-Date: 2011-10-18 11:32+0100\n"
+"PO-Revision-Date: 2011-10-18 11:38+0100\n"
 "Last-Translator: \n"
 "Language-Team: Pronamic <info@pronamic.nl>\n"
 "MIME-Version: 1.0\n"
@@ -24,19 +24,31 @@ msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host met 
 msgid "Unable to connect to host."
 msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host."
 
-#: magento.php:390
+#: magento.php:392
 msgid "Detected an error in the template file, actions have been interupted."
 msgstr "Er is een fout aangetroffen in het template bestand, de acties zijn onderbroken."
 
-#: magento.php:687
-#: magento.php:688
+#: magento.php:694
+#: magento.php:695
 msgid "Magento"
 msgstr "Magento"
 
-#: magento.php:699
-#: magento.php:700
+#: magento.php:706
+#: magento.php:707
 msgid "Settings"
 msgstr "Instellingen"
+
+#: Magento_Latest_Products_Widget.php:9
+msgid "Shows the latest products in your Magento store."
+msgstr "Toont de nieuwste producten in uw Magento winkel in een widget."
+
+#: Magento_Latest_Products_Widget.php:15
+msgid "Magento Latest Products"
+msgstr "Magento Nieuwste Producten"
+
+#: Magento_Latest_Products_Widget.php:29
+msgid "Number of latest products shown"
+msgstr "Aantal getoonde nieuwste producten"
 
 #: page-settings.php:11
 msgid "API"
@@ -75,8 +87,8 @@ msgid "Should we save product results returned by the Magento API? Saving result
 msgstr "Mogen we de productresultaten afkomstig van de Magento API opslaan? Dit verbetert laadprestaties."
 
 #: Magento_Products_Widget.php:9
-msgid "The widget version of the Pronamic Magento plugin."
-msgstr "De widget versie van de Pronamic Magento plugin"
+msgid "Shows magento products in a widget form."
+msgstr "Toont uw Magento producten in een widget."
 
 #: Magento_Products_Widget.php:15
 msgid "Magento Products"
@@ -94,13 +106,15 @@ msgstr "Categorie naam of ID"
 msgid "Find products with a name like:"
 msgstr "Zoek producten met een naam als:"
 
-#: Magento_Products_Widget.php:44
-msgid "Show latest products"
-msgstr "Laat nieuwste producten zien"
+#: page-magento.php:9
+msgid "This plugin makes it possible to show products from your Magento store on your WordPress website. You can either show your products with a shortcode on your pages or in posts or using the widget to show it in the sidebar. An ideal solution for Magento store owners who'd like to advertise their products on their WordPress website."
+msgstr "Deze plugin maakt het mogelijk om producten in uw Magento winkel op uw WordPress blog te tonen. U kunt uw Magento producten tonen in uw posts of pagina´s doormiddel van een shortcode, maar ook kunt u uw Magento producten tonen in de sidebar. Een ideale oplossing voor beheerders van een Magento winkel, die hun producten graag zouden adverteren op hun WordPress website."
 
-#: Magento_Products_Widget.php:50
-msgid "Number of latest products shown"
-msgstr "Aantal getoonde nieuwste producten"
+#~ msgid "The widget version of the Pronamic Magento plugin."
+#~ msgstr "De widget versie van de Pronamic Magento plugin"
+
+#~ msgid "Show latest products"
+#~ msgstr "Laat nieuwste producten zien"
 
 #~ msgid "Pronamic Magento Plugin Sidebar Widget"
 #~ msgstr "Pronamic Magento Plugin Sidebar Widget"

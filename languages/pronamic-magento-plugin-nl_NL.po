@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pronamic Magento Plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-18 11:32+0100\n"
-"PO-Revision-Date: 2011-10-18 11:38+0100\n"
+"POT-Creation-Date: 2011-10-19 09:41+0100\n"
+"PO-Revision-Date: 2011-10-19 09:51+0100\n"
 "Last-Translator: \n"
 "Language-Team: Pronamic <info@pronamic.nl>\n"
 "MIME-Version: 1.0\n"
@@ -16,99 +16,257 @@ msgstr ""
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: magento.php:122
-msgid "Unable to login to host with that username/password combination."
-msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host met de huidige gebruikersnaam/wachtwoord combinatie."
-
-#: magento.php:125
-msgid "Unable to connect to host."
-msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host."
-
-#: magento.php:392
-msgid "Detected an error in the template file, actions have been interupted."
-msgstr "Er is een fout aangetroffen in het template bestand, de acties zijn onderbroken."
-
-#: magento.php:694
-#: magento.php:695
+#: magento.php:70
+#: magento.php:71
 msgid "Magento"
 msgstr "Magento"
 
-#: magento.php:706
-#: magento.php:707
-msgid "Settings"
-msgstr "Instellingen"
+#: magento.php:82
+#: magento.php:83
+msgid "API Settings"
+msgstr "API Instellingen"
 
-#: Magento_Latest_Products_Widget.php:9
-msgid "Shows the latest products in your Magento store."
-msgstr "Toont de nieuwste producten in uw Magento winkel in een widget."
+#: magento.php:91
+#: magento.php:92
+#: settings/currency-settings.php:11
+msgid "Currency Settings"
+msgstr "Valuta Instellingen"
 
-#: Magento_Latest_Products_Widget.php:15
-msgid "Magento Latest Products"
-msgstr "Magento Nieuwste Producten"
+#: settings/currency-settings.php:15
+msgid "Don't display a currency logo"
+msgstr "Laat geen valuta teken zien"
 
-#: Magento_Latest_Products_Widget.php:29
-msgid "Number of latest products shown"
-msgstr "Aantal getoonde nieuwste producten"
+#: settings/currency-settings.php:16
+msgid "US Dollars (&#36;)"
+msgstr "Amerikaanse Dollar (&#36;)"
 
-#: page-settings.php:11
+#: settings/currency-settings.php:17
+msgid "Euros (&euro;)"
+msgstr "Euro's (&euro;)"
+
+#: settings/currency-settings.php:18
+msgid "Pounds Sterling (&pound;)"
+msgstr "Ponden (&pound;)"
+
+#: settings/currency-settings.php:19
+msgid "Australian Dollars (&#36;)"
+msgstr "Australische Dollar (&#36;)"
+
+#: settings/currency-settings.php:20
+msgid "Brazilian Real (&#36;)"
+msgstr "Braziliaanse Real (&#36;)"
+
+#: settings/currency-settings.php:21
+msgid "Canadian Dollars (&#36;)"
+msgstr "Canadese Dollar (&#36;)"
+
+#: settings/currency-settings.php:22
+msgid "Czech Koruna"
+msgstr "Tsjechische Kronen"
+
+#: settings/currency-settings.php:23
+msgid "Danish Krone"
+msgstr "Deense Kronen"
+
+#: settings/currency-settings.php:24
+msgid "Hong Kong Dollar (&#36;)"
+msgstr "Hong Kongse Dollar (&#36;)"
+
+#: settings/currency-settings.php:25
+msgid "Hungarian Forint"
+msgstr "Hongaarse Forint"
+
+#: settings/currency-settings.php:26
+msgid "Israeli Shekel"
+msgstr "Israëlische Shekel"
+
+#: settings/currency-settings.php:27
+msgid "Japanese Yen (&yen;)"
+msgstr "Japanse Yen (&yen;)"
+
+#: settings/currency-settings.php:28
+msgid "Malaysian Ringgits"
+msgstr "Maleisische Ringgits"
+
+#: settings/currency-settings.php:29
+msgid "Mexican Peso (&#36;)"
+msgstr "Mexicaanse Peso's (&#36;)"
+
+#: settings/currency-settings.php:30
+msgid "New Zealand Dollar (&#36;)"
+msgstr "Nieuw Zeelandse Dollar (&#36;)"
+
+#: settings/currency-settings.php:31
+msgid "Norwegian Krone"
+msgstr "Noorse Kronen"
+
+#: settings/currency-settings.php:32
+msgid "Philippine Pesos"
+msgstr "Filippijnse Peso's"
+
+#: settings/currency-settings.php:33
+msgid "Polish Zloty"
+msgstr "Poolse Zloty"
+
+#: settings/currency-settings.php:34
+msgid "Singapore Dollar (&#36;)"
+msgstr "Singapore Dollar (&#36;)"
+
+#: settings/currency-settings.php:35
+msgid "Swedish Krona"
+msgstr "Zweedse Kronen"
+
+#: settings/currency-settings.php:36
+msgid "Swiss Franc"
+msgstr "Zwitserse Frank"
+
+#: settings/currency-settings.php:37
+msgid "Taiwan New Dollars"
+msgstr "Taiwanese nieuwe dollar"
+
+#: settings/currency-settings.php:38
+msgid "Thai Baht"
+msgstr "Thaise Baht"
+
+#: settings/currency-settings.php:39
+msgid "Turkish Lira (TL)"
+msgstr "Turkse Lira (TL)"
+
+#: settings/currency-settings.php:44
+msgid "Currency"
+msgstr "Valuta"
+
+#: settings/currency-settings.php:55
+msgid "Left"
+msgstr "Links"
+
+#: settings/currency-settings.php:56
+msgid "Right"
+msgstr "Rechts"
+
+#: settings/currency-settings.php:57
+msgid "Left (with space)"
+msgstr "Links (Met ruimte)"
+
+#: settings/currency-settings.php:58
+msgid "Right (with space)"
+msgstr "Rechts (Met ruimte)"
+
+#: settings/currency-settings.php:63
+msgid "Currency position"
+msgstr "Valuta positie"
+
+#: settings/currency-settings.php:73
+msgid "Set the currency's location towards the price."
+msgstr "Stel het valuta logo ten opzichte van de prijs in."
+
+#: settings/currency-settings.php:79
+msgid "Number of decimals"
+msgstr "Aantal decimalen"
+
+#: settings/currency-settings.php:88
+msgid "Number of digits after the decimal separator."
+msgstr "Aantal getallen achter het decimale scheidingsteken."
+
+#: settings/currency-settings.php:94
+msgid "Decimal separator"
+msgstr "Decimaal scheidingsteken"
+
+#: settings/currency-settings.php:106
+msgid "Thousands separator"
+msgstr "Duidenzen scheidingsteken"
+
+#: settings/page-settings.php:11
 msgid "API"
 msgstr "API"
 
-#: page-settings.php:16
+#: settings/page-settings.php:16
 msgid "WSDL"
 msgstr "WSDL"
 
-#: page-settings.php:22
+#: settings/page-settings.php:22
 msgid "http://domain.tld/api/?wsdl"
 msgstr "http://domain.tld/api/?wsdl"
 
-#: page-settings.php:28
+#: settings/page-settings.php:28
 msgid "Store URL"
 msgstr "Winkel URL"
 
-#: page-settings.php:34
+#: settings/page-settings.php:34
 msgid "http://storedomain.ext/"
 msgstr "http://winkeldomein.ext/"
 
-#: page-settings.php:40
+#: settings/page-settings.php:40
 msgid "Username"
 msgstr "Gebruikersnaam"
 
-#: page-settings.php:48
+#: settings/page-settings.php:48
 msgid "API Key"
 msgstr "API sleutel"
 
-#: page-settings.php:56
+#: settings/page-settings.php:56
 msgid "Caching"
 msgstr "Caching"
 
-#: page-settings.php:62
+#: settings/page-settings.php:62
 msgid "Should we save product results returned by the Magento API? Saving results increases loading performance."
 msgstr "Mogen we de productresultaten afkomstig van de Magento API opslaan? Dit verbetert laadprestaties."
 
-#: Magento_Products_Widget.php:9
+#: settings/page-magento.php:9
+msgid "This plugin makes it possible to show products from your Magento store on your WordPress website. You can either show your products with a shortcode on your pages or in posts or using the widget to show it in the sidebar. An ideal solution for Magento store owners who'd like to advertise their products on their WordPress website."
+msgstr "Deze plugin maakt het mogelijk om producten in uw Magento winkel op uw WordPress blog te tonen. U kunt uw Magento producten tonen in uw posts of pagina´s doormiddel van een shortcode, maar ook kunt u uw Magento producten tonen in de sidebar. Een ideale oplossing voor beheerders van een Magento winkel, die hun producten graag zouden adverteren op hun WordPress website."
+
+#: classes/Magento_Latest_Products_Widget.php:9
+msgid "Shows the latest products in your Magento store."
+msgstr "Toont de nieuwste producten in uw Magento winkel in een widget."
+
+#: classes/Magento_Latest_Products_Widget.php:15
+msgid "Magento Latest Products"
+msgstr "Magento Nieuwste Producten"
+
+#: classes/Magento_Latest_Products_Widget.php:29
+msgid "Number of latest products shown"
+msgstr "Aantal getoonde nieuwste producten"
+
+#: classes/Magento.php:92
+msgid "Unable to login to host with that username/password combination."
+msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host met de huidige gebruikersnaam/wachtwoord combinatie."
+
+#: classes/Magento.php:95
+msgid "Unable to connect to host."
+msgstr "Het spijt ons, de plugin was niet in staat te verbinden met de host."
+
+#: classes/Magento.php:368
+msgid "Detected an error in the template file, actions have been interupted."
+msgstr "Er is een fout aangetroffen in het template bestand, de acties zijn onderbroken."
+
+#: classes/Magento.php:388
+msgid "Please check your API settings, there seems to be something wrong with your WSDL setting."
+msgstr "Controleer uw API instellingen alstublieft, er lijkt iets mis te zijn met uw WSDL instelling."
+
+#: classes/Magento.php:407
+msgid "No session could be created, please check your API settings."
+msgstr "Er kon geen sessie gemaakt worden, controleert u alstublieft uw API instellingen."
+
+#: classes/Magento_Products_Widget.php:9
 msgid "Shows magento products in a widget form."
 msgstr "Toont uw Magento producten in een widget."
 
-#: Magento_Products_Widget.php:15
+#: classes/Magento_Products_Widget.php:15
 msgid "Magento Products"
 msgstr "Magento Producten"
 
-#: Magento_Products_Widget.php:29
+#: classes/Magento_Products_Widget.php:29
 msgid "Product ID's or SKU's (Comma separated):"
 msgstr "Product ID's of SKU's (Komma gescheiden)"
 
-#: Magento_Products_Widget.php:34
+#: classes/Magento_Products_Widget.php:34
 msgid "Category name or ID:"
 msgstr "Categorie naam of ID"
 
-#: Magento_Products_Widget.php:39
+#: classes/Magento_Products_Widget.php:39
 msgid "Find products with a name like:"
 msgstr "Zoek producten met een naam als:"
-
-#: page-magento.php:9
-msgid "This plugin makes it possible to show products from your Magento store on your WordPress website. You can either show your products with a shortcode on your pages or in posts or using the widget to show it in the sidebar. An ideal solution for Magento store owners who'd like to advertise their products on their WordPress website."
-msgstr "Deze plugin maakt het mogelijk om producten in uw Magento winkel op uw WordPress blog te tonen. U kunt uw Magento producten tonen in uw posts of pagina´s doormiddel van een shortcode, maar ook kunt u uw Magento producten tonen in de sidebar. Een ideale oplossing voor beheerders van een Magento winkel, die hun producten graag zouden adverteren op hun WordPress website."
 
 #~ msgid "The widget version of the Pronamic Magento plugin."
 #~ msgstr "De widget versie van de Pronamic Magento plugin"

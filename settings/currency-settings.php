@@ -12,7 +12,8 @@
 
 		<table class="form-table">
 			<?php 
-				$currencies = array('USD' => __('US Dollars (&#36;)', 'pronamic-magento-plugin'),
+				$currencies = array('' => __('Don\'t display a currency logo', 'pronamic-magento-plugin'),
+					'USD' => __('US Dollars (&#36;)', 'pronamic-magento-plugin'),
 					'EUR' => __('Euros (&euro;)', 'pronamic-magento-plugin'),
 					'GBP' => __('Pounds Sterling (&pound;)', 'pronamic-magento-plugin'),
 					'AUD' => __('Australian Dollars (&#36;)', 'pronamic-magento-plugin'),

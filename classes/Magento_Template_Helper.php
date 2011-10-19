@@ -92,6 +92,9 @@ class Magento_Template_Helper{
 		$decimalseparator = get_option('magento-decimal-separator');
 		$thousandsseparator = get_option('magento-thousands-separator');
 		
+		if(empty($decimalseparator)) $decimalseparator = '.';
+		if(empty($thousandsseparator)) $thousandsseparator = ',';
+		
 		return number_format($price, $decimals, $decimalseparator, $thousandsseparator);
 	}
 	

@@ -23,7 +23,7 @@ WordPress installation and then activate the Plugin from Plugins page.
 
 = API Settings =
 After avtivating the plugin, you should see a Magento tab in your admin menu. Go there and
-click settings. On this page there are a few settings that need to be set. 
+click API Settings. On this page there are a few settings that need to be set. 
 
 The first field should be set to your store's WSDL for most sites this would be 
 'http://yourdomain.extension/api/soap/?wsdl' where you should replace 'yourdomain.extension' 

@@ -17,9 +17,11 @@ who'd like to advertise their products on their WordPress website.
 
 == Installation ==
 
+= Activation =
 Extract the zip file and just drop the contents in the wp-content/plugins/ directory of your 
 WordPress installation and then activate the Plugin from Plugins page. 
 
+= API Settings =
 After avtivating the plugin, you should see a Magento tab in your admin menu. Go there and
 click settings. On this page there are a few settings that need to be set. 
 
@@ -37,6 +39,13 @@ The user's password will be the API key. Now fill out the username and API key f
 
 Lastly, the caching option. If you set caching to 'Yes', you will notice a much shorter page
 loading time once the cache has been saved.
+
+= Currency Settings =
+To set the display the correct currency you should go to Currency Settings. There you can
+select your currency. The currency will be displayed on either side of the price you select
+and will have as many digits after the decimal separator as you set it to have. Also, you can
+set the thousands separator. These settings influence te way product prices are shown by the
+plugin.
 
 
 == User instructions ==
@@ -200,7 +209,9 @@ under the name 'pronamic-magento-plugin-stylesheet' and thus can be deregistered
 
 
 == Screenshots ==
-1. The settings page.
+1. The API settings page.
+
+6. The currency settings page.
 
 2. An example of a piece of shortcode in a page.
 
@@ -227,6 +238,7 @@ area showing three latest products.
 *	Improved product fetching for bigger stores.
 *	Added second argument for 'cat' key, maximum number of products shown.
 *	Added new shortcode key 'name_like' which will search a product name that is like the given value. The second argument is how many products should maximally show.
+*	Improved fail-proofness of the client making progress.
 
 
 == Links ==

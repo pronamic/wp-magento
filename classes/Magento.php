@@ -159,28 +159,32 @@ class Magento {
 				}else{			
 					$result = self::getCategoryList($client, $session);
 					
-					// Magento passes a wrapper array, to make it easier on the getCatagories function
-					// we throw that wrapper away here and then call the function, so we get a flat array.
-					$result = $result['children'];
-					$result = self::flattenCategories($result);
-					
-					// Loop through the flattened array to match the catagory name with the given shortcode name.
-					// When there is a mach, we need not look further so we break.
-					foreach($result as $key=>$value){
-						$tmp_id = '';
-						$break = false;
-						foreach($value as $key2=>$value2){
-							if($key2 == 'category_id'){
-								$tmp_id = $value2;
-							}						
-							if($key2 == 'name' && strtolower(trim($value2)) == $cat){
-								$cat_id = $tmp_id;
-								$break = true;
-								break;
-							}						
-						}
-						if($break){
-							break;
+					if(!empty($result)){
+						// Magento passes a wrapper array, to make it easier on the getCatagories function
+						// we throw that wrapper away here and then call the function, so we get a flat array.
+						$result = $result['children'];
+						$result = self::flattenCategories($result);
+						
+						// Loop through the flattened array to match the catagory name with the given shortcode name.
+						// When there is a mach, we need not look further so we break.
+						if(!empty($result)){
+							foreach($result as $key=>$value){
+								$tmp_id = '';
+								$break = false;
+								foreach($value as $key2=>$value2){
+									if($key2 == 'category_id'){
+										$tmp_id = $value2;
+									}						
+									if($key2 == 'name' && strtolower(trim($value2)) == $cat){
+										$cat_id = $tmp_id;
+										$break = true;
+										break;
+									}						
+								}
+								if($break){
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -219,20 +223,22 @@ class Magento {
 					$filter = array('created_at' => array('from' => date('o-m-d H:i:s', strtotime('-'.$i.' months'))));
 					$result = self::getProductList($client, $session, $filter);
 					$count = count($result);
-					if($i > 100){
-						//break;
+					if($i > 1000){
+						break;
 					}
 				}
-				$result = array_slice($result, -$maxproducts);
+				if(!empty($result)) $result = array_slice($result, -$maxproducts);
 			}else{
 				$result = self::getProductList($client, $session, '');
 			}
 			
-			// Put latest products first
-			$result = array_reverse($result);
+			
 			
 			// Get all product ids and give them to the $productIds array
 			if(!empty($result)){
+				// Put latest products first
+				$result = array_reverse($result);
+				
 				foreach($result as $value){
 					$productIds[] = $value['product_id'];
 				}
@@ -374,8 +380,13 @@ class Magento {
 	 * @param String $wsdl
 	 */
 	private static function getSoapClient($wsdl){		
-		if(!isset(self::$soapClient)){			
-			self::$soapClient = new SoapClient($wsdl);
+		if(!empty($wsdl)){
+			if(!isset(self::$soapClient)){			
+				self::$soapClient = new SoapClient($wsdl);
+			}
+		}else{
+			_e('Please check your API settings, there seems to be something wrong with your WSDL setting.', 'pronamic-magento-plugin'); echo '<br />';
+			return null;
 		}
 		return self::$soapClient;
 	}
@@ -388,8 +399,13 @@ class Magento {
 	 * @param Object $client
 	 */
 	private static function getSession($username, $apiKey, $client){
-		if(!isset(self::$session)){
-			self::$session = $client->login($username, $apiKey);
+		if(is_object($client) && !empty($apiKey) && !empty($username)){
+			if(!isset(self::$session)){
+				self::$session = $client->login($username, $apiKey);
+			}
+		}else{
+			_e('No session could be created, please check your API settings.', 'pronamic-magento-plugin'); echo '<br />';
+			return null;
 		}
 		return self::$session;
 	}
@@ -405,11 +421,13 @@ class Magento {
 		$result = '';
 		$result = self::getAPICacheResults('magento-CachedProduct'.$productId);
 		
-		if(empty($result)){
+		if(empty($result) && is_object($client)){
 			try{
 				$result = $client->call($session, 'catalog_product.info', $productId);
 				self::setAPICacheResults('magento-CachedProduct'.$productId, $result);
 			}catch(Exception $e){	}	
+		}else{
+			return null;
 		}
 		
 		return $result;
@@ -426,11 +444,13 @@ class Magento {
 		$image = '';		
 		$image = self::getAPICacheResults('magento-CachedImage'.$productId);
 		
-		if(empty($image)){
+		if(empty($image) && is_object($client)){
 			try{
 				$image = $client->call($session, 'product_media.list', $productId);
 				self::setAPICacheResults('magento-CachedImage'.$productId, $image);
 			}catch(Exception $e){	}
+		}else{
+			return null;
 		}
 		
 		return $image;
@@ -446,7 +466,7 @@ class Magento {
 		$result = '';
 		$result = self::getAPICacheResults('magento-getProductList');
 		
-		if(empty($result)){
+		if(empty($result) && is_object($client)){
 			try{
 				if(!empty($filter)){
 					$result = $client->call($session, 'catalog_product.list', array($filter));
@@ -455,6 +475,8 @@ class Magento {
 					self::setAPICacheResults('magento-getProductList', $result);
 				}
 			}catch(Exception $e){	}
+		}else{
+			return null;
 		}
 		
 		return $result;
@@ -480,7 +502,7 @@ class Magento {
 		
 		$array = self::getAPICacheResults('magento-getProductListByIDs'.$cachename);
 		
-		if(empty($array)){
+		if(empty($array) && is_object($client)){
 			$error = '';
 			foreach($productIds as $productId){
 				try{
@@ -493,6 +515,8 @@ class Magento {
 			if(empty($error)){
 				self::setAPICacheResults('magento-getProductListByIDs'.$cachename, $array);
 			}
+		}else{
+			return null;
 		}
 		
 		return $array;
@@ -508,11 +532,13 @@ class Magento {
 		$result = '';
 		$result = self::getAPICacheResults('magento-getCategoryList');
 
-		if(empty($result)){
+		if(empty($result) && is_object($client)){
 			try{
 				$result = $client->call($session, 'catalog_category.tree');
 				self::setAPICacheResults('magento-getCategoryList', $result);
 			}catch(Exception $e){	}
+		}else{
+			return null;
 		}
 		
 		return $result;
@@ -525,16 +551,19 @@ class Magento {
 	 * @param String $session
 	 * @param int $storeID
 	 * @param int $categoryID
+	 * @return mixed array $result
 	 */
 	public static function getProductsByCategoryID($client, $session, $storeID, $categoryID){
 		$result = '';
 		$result = self::getAPICacheResults('magento-getProductsByCategoryID');
 				
-		if(empty($result) && isset($storeID) && isset($categoryID)){
+		if(empty($result) && isset($storeID) && isset($categoryID) && is_object($client)){
 			try{
 				$result = $client->call($session, 'category.assignedProducts', array($categoryID, $storeID));
 				self::setAPICacheResults('magento-getProductsByCategoryID', $result);
-			}catch(Exception $e){	echo 'wrong';}
+			}catch(Exception $e){	}
+		}else{
+			return null;
 		}
 		
 		return $result;

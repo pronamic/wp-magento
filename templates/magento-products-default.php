@@ -4,7 +4,7 @@
  * $Mage->have_products()			--	Checks wether there's a product to be displayed or not. We recommend you to put it in a 'while($Mage->have_products()):' loop. Also, all functions below should be within this loop. They will not work when not in this loop.
  * $Mage->product_title()			--	Outputs the product title.
  * $Mage->product_url()				--	Outputs the product url.
- * $Mage->product_price([$currency [, $behind [, $decimals [, $decimalseparator [, $thousandsseparator]]]]])	--	Outputs the product price in format 0.00. This function shows the price or when there's a discount, it shows the price after discount. As a first argument you can (optionally) parse the currency that needs to be written before or after the price. For euros this would be: &euro; The second argument is an optional boolean (true or false) and should be set to true when the currency logo or name should be put after the price, it defaults to false when left empty. The other three arguments are optional as well: The third argument takes an int (number) which will set the number of decimal numbers of the price, this defaults to two if left empty. The forth argument is the separator between the non-decimal and the decimal numbers. By default the separator is a period. The last argument sets the separator for the thousands of a number. This defaults to a comma when left empty.
+ * $Mage->product_price()			--	Outputs the product price. This function shows the price or when there's a discount, it shows the price after discount.
  * $Mage->product_default_price()	--	Outputs the products default price in format 0.00. This is the price without discount.
  * $Mage->product_special_price()	--	Outputs the discount price in format 0.00.
  * $Mage->has_image()				--	Checks wether there's an image to display or not.
@@ -32,7 +32,7 @@
 		</a></h2>
 		
 		<span class="pronamic-magento-price-box">
-			<span class="pronamic-magento-price"><?php $Mage->product_price('&euro;', false, 2, '.', ','); ?></span>
+			<span class="pronamic-magento-price"><?php $Mage->product_price(); ?></span>
 		</span>
 
 	</li>

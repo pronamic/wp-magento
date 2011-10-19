@@ -6,7 +6,7 @@
 	</h2>
 
 	<form method="post" action="options.php">
-		<?php settings_fields('magento'); ?>
+		<?php settings_fields('magento-api'); ?>
 
 		<h3 class="title"><?php _e('API', 'pronamic-magento-plugin') ?></h3>
 

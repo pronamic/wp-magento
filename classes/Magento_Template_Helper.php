@@ -47,57 +47,52 @@ class Magento_Template_Helper{
 	 * Prints the price, when there's a discount it prints the price
 	 * striped out, with the discount price behind it.
 	 */
-	public function product_price($currency = '', $behind = false, $decimals = 2, $decimalseparator = '.', $thousandsseparator = ','){
+	public function product_price(){
 		if($this->inside_product_loop()){
-			if(!isset($currency)){
-				$currency = '';
-			}
-			if(!isset($behind)){
-				$behind = false;
-			}
-			if(!isset($decimals)){
-				$decimals = 2;
-			}elseif(!is_numeric($decimals)){
-				$decimals = 2;
-			}
-			if(!isset($decimalseparator)){
-				$decimalseparator = '.';
-			}
-			if(!isset($thousandsseparator)){
-				$thousandsseparator = ',';
-			}
+			// Currency settings
+			$price = $this->magento_products[$this->i]['result']['price'];
+			$specialprice = $this->magento_products[$this->i]['result']['special_price'];
+			$currency = get_option('magento-currency-setting');
+			$position = get_option('magento-currency-position');
 			
-			if($behind && strlen($currency) > 1){
-				$currency = ' '.$currency;
-			}
-			
-			if(isset($this->magento_products[$this->i]['result']['special_price'])){
-				if(!$behind){				
-					echo '<del>'.$currency; echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo '</del> <b>'; echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo '</b>';
-				}else{
-					echo '<del>'; echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo ' '.$currency.'</del> <b>'; echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price'], $decimals, $decimalseparator, $thousandsseparator); echo $currency.'</b>';
-				} 
-			}else{
-				if(!$behind){
-					echo $currency; echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator);
-				}else{
-					echo $this->this_number_format($this->magento_products[$this->i]['result']['price'], $decimals, $decimalseparator, $thousandsseparator); echo $currency;
+			$currencies = array('USD', 'EUR', 'GBP', 'AUD', 'BRL', 'CAD', 'CZK', 'DKK', 'HKD', 'HUF', 'ILS', 'JPY', 'MYR', 'MXN', 'NZD', 'NOK', 'PHP', 'PLN', 'SGD', 'SEK', 'CHF', 'TWD', 'THB', 'TRY');
+			$replacements = array('&#36;', '&euro;', '&pound;', '&#36;', '&#36;', '&#36;', 'CZK', 'DKK', 'HKD', 'HUF', 'ILS', '&yen;', 'MYR', '&#36;', '&#36;', 'NOK', 'PHP', 'PLN', '&#36;', 'SEK', 'CHF', 'TWD', 'THB', 'TL');
+			foreach($currencies as $key => $value){
+				if($currency == $value){
+					$currency = $replacements[$key];
 				}
+			}
+			
+			$left = ''; $right = ''; $leftspace = ''; $rightspace = '';
+			switch($position){
+				case 'left': $left = $currency; break;
+				case 'right': $right = $currency; break; 
+				case 'left_space': $leftspace = $currency . ' '; break;
+				case 'right_space': $rightspace = ' ' . $currency; break;
+				default: $left = $currency; break;
+			}
+			
+			if(isset($specialprice)){				
+				echo '<del>'.$left.$leftspace; echo $this->this_number_format($price); echo $right.$rightspace.'</del> <b>'.$left.$leftspace; echo $this->this_number_format($specialprice); echo $right.$rightspace.'</b>';
+			}else{
+				echo $left.$leftspace;  echo $this->this_number_format($price); echo $right.$rightspace;
 			}
 		}
 	}
 	
 	/**
-	 * Returns the formatted input.
+	 * Returns the formatted input. Uses the currency settings.
 	 * 
-	 * @param float $number
-	 * @param int $decimals
-	 * @param String $decimalseparator
-	 * @param String $thousandsseparator
+	 * @param float $price
 	 * @return float The number in a new format
 	 */
-	public function this_number_format($number, $decimals, $decimalseparator, $thousandsseparator){
-		return number_format($number, $decimals, $decimalseparator, $thousandsseparator);
+	public function this_number_format($price){
+		$decimals = get_option('magento-number-decimals');
+		if(is_numeric($decimals)) $decimals = (int) $decimals; else $decimals = 2;
+		$decimalseparator = get_option('magento-decimal-separator');
+		$thousandsseparator = get_option('magento-thousands-separator');
+		
+		return number_format($price, $decimals, $decimalseparator, $thousandsseparator);
 	}
 	
 	/**
@@ -105,7 +100,7 @@ class Magento_Template_Helper{
 	 */
 	public function product_special_price(){
 		if($this->inside_product_loop()){
-			echo number_format($this->magento_products[$this->i]['result']['special_price'], 2);
+			echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price']);
 		}
 	}
 	
@@ -114,7 +109,7 @@ class Magento_Template_Helper{
 	 */
 	public function product_default_price(){
 		if($this->inside_product_loop()){
-			echo number_format($this->magento_products[$this->i]['result']['price'], 2);
+			echo $this->this_number_format($this->magento_products[$this->i]['result']['price']);
 		}
 	}
 	

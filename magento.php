@@ -44,12 +44,19 @@ class Init {
 
 	public static function adminInitialize() {
 		// Settings
-		register_setting('magento', 'magento-api-wsdl');
-		register_setting('magento', 'magento-store-url');
-		register_setting('magento', 'magento-api-username');
-		register_setting('magento', 'magento-api-key');
-		register_setting('magento', 'magento-caching-option');
-		register_setting('magento', 'magento-caching-time');
+		register_setting('magento-api', 'magento-api-wsdl');
+		register_setting('magento-api', 'magento-store-url');
+		register_setting('magento-api', 'magento-api-username');
+		register_setting('magento-api', 'magento-api-key');
+		register_setting('magento-api', 'magento-caching-option');
+		register_setting('magento-api', 'magento-caching-time');
+		
+		// Currency Settings
+		register_setting('magento-currency', 'magento-currency-setting');
+		register_setting('magento-currency', 'magento-currency-position');
+		register_setting('magento-currency', 'magento-number-decimals');
+		register_setting('magento-currency', 'magento-decimal-separator');
+		register_setting('magento-currency', 'magento-thousands-separator');
 
 		// Styles
 		wp_enqueue_style(
@@ -72,11 +79,20 @@ class Init {
 		// @see wp-admin/menu.php
 		add_submenu_page(
 			$parentSlug = __FILE__ , 
-			$pageTitle = __('Settings', 'pronamic-magento-plugin') , 
-			$menuTitle = __('Settings', 'pronamic-magento-plugin') , 
+			$pageTitle = __('API Settings', 'pronamic-magento-plugin') , 
+			$menuTitle = __('API Settings', 'pronamic-magento-plugin') , 
 			$capability = 'manage_options' , 
 			$menuSlug = 'magento-settings' , 
 			$function = array(__CLASS__, 'pageSettings')
+		);
+		
+		add_submenu_page(
+			$parentSlug = __FILE__ , 
+			$pageTitle = __('Currency Settings', 'pronamic-magento-plugin') , 
+			$menuTitle = __('Currency Settings', 'pronamic-magento-plugin') , 
+			$capability = 'manage_options' , 
+			$menuSlug = 'magento-currency-settings' , 
+			$function = array(__CLASS__, 'currencySettings')
 		);
 	}
 	
@@ -101,11 +117,15 @@ class Init {
 	}
 
 	public static function page() {
-		include('page-magento.php');
+		include('settings/page-magento.php');
 	}
 
 	public static function pageSettings() {
-		include('page-settings.php');
+		include('settings/page-settings.php');
+	}
+	
+	public static function currencySettings() {
+		include('settings/currency-settings.php');
 	}
 }
 

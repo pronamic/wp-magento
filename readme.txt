@@ -211,15 +211,15 @@ under the name 'pronamic-magento-plugin-stylesheet' and thus can be deregistered
 == Screenshots ==
 1. The API settings page.
 
-6. The currency settings page.
+2. The currency settings page.
 
-2. An example of a piece of shortcode in a page.
+3. An example of a piece of shortcode in a page.
 
-3. The widgets page with an example of how you could configure your widgets.
+4. The widgets page with an example of how you could configure your widgets.
 
-4. A page with three latest products on it.
+5. A page with three latest products on it.
 
-5. A widget in the sidebar showing three products from a category and a widget in the first footer
+6. A widget in the sidebar showing three products from a category and a widget in the first footer
 area showing three latest products.
 
 

@@ -239,6 +239,7 @@ area showing three latest products.
 *	Added second argument for 'cat' key, maximum number of products shown.
 *	Added new shortcode key 'name_like' which will search a product name that is like the given value. The second argument is how many products should maximally show.
 *	Improved fail-proofness of the client making progress.
+*	Added Currency Settings.
 
 
 == Links ==

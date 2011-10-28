@@ -3,7 +3,7 @@ Contributors: pronamic, remcotolsma, stefanboonstra
 Tags: magento, webshop, e-commerce
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: 0.1-beta
+Stable tag: beta-0.1
 
 Integrate Magento content into your WordPress website. 
 
@@ -225,8 +225,7 @@ area showing three latest products.
 
 == Changelog ==
 
-= beta-0.1 =
-*	Initial release
+= beta-0.2 =
 *	Made multiple 'pid' input possible. Comma seperated.
 *	Added shortcode 'cat'. Input a String with a category name to get a fixed number of three random (or less if there are less than three products with this category) products.
 *	Shortcode 'cat' accepts category_id (int) now as well, which is faster.
@@ -240,6 +239,10 @@ area showing three latest products.
 *	Added new shortcode key 'name_like' which will search a product name that is like the given value. The second argument is how many products should maximally show.
 *	Improved fail-proofness of the client making progress.
 *	Added Currency Settings.
+*	Replaced variable called template function by global functions
+
+= beta-0.1 =
+*	Initial release
 
 
 == Links ==

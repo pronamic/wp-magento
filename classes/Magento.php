@@ -1,7 +1,7 @@
 <?php
 class Magento {
-	//const CACHETIME = 86400; // 24hrs (60*60*24);
-	const CACHETIME = 300; // 5 minutes.
+	const CACHETIME = 43200; // 12hrs (60*60*12);
+	//const CACHETIME = 300; // 5 minutes.
 	private static $soapClient;
 	private static $session;	
 	
@@ -359,8 +359,8 @@ class Magento {
 		// The template
 		if(!empty($magento_products)){
 			// Included functions to make template use more easy on the user
-			global $Mage;
-			$Mage = new Magento_Template_Helper($magento_products);
+			global $Magento;
+			$Magento = new Magento_Template_Helper($magento_products);
 			
 			try{
 				include($template);

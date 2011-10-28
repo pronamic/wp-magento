@@ -39,7 +39,7 @@ class Magento_Template_Helper{
 	 */
 	public function product_title(){
 		if($this->inside_product_loop()){
-			echo $this->magento_products[$this->i]['result']['name'];
+			return $this->magento_products[$this->i]['result']['name'];
 		}
 	}
 	
@@ -48,6 +48,7 @@ class Magento_Template_Helper{
 	 * striped out, with the discount price behind it.
 	 */
 	public function product_price(){
+		$productprice = '';
 		if($this->inside_product_loop()){
 			// Currency settings
 			$price = $this->magento_products[$this->i]['result']['price'];
@@ -73,11 +74,12 @@ class Magento_Template_Helper{
 			}
 			
 			if(isset($specialprice)){				
-				echo '<del>'.$left.$leftspace; echo $this->this_number_format($price); echo $right.$rightspace.'</del> <b>'.$left.$leftspace; echo $this->this_number_format($specialprice); echo $right.$rightspace.'</b>';
+				$productprice .= '<del>'.$left.$leftspace.$this->this_number_format($price).$right.$rightspace.'</del> <b>'.$left.$leftspace.$this->this_number_format($specialprice).$right.$rightspace.'</b>';
 			}else{
-				echo $left.$leftspace;  echo $this->this_number_format($price); echo $right.$rightspace;
+				$productprice .= $left.$leftspace.$this->this_number_format($price).$right.$rightspace;
 			}
 		}
+		return $productprice;
 	}
 	
 	/**
@@ -103,7 +105,7 @@ class Magento_Template_Helper{
 	 */
 	public function product_special_price(){
 		if($this->inside_product_loop()){
-			echo $this->this_number_format($this->magento_products[$this->i]['result']['special_price']);
+			return $this->this_number_format($this->magento_products[$this->i]['result']['special_price']);
 		}
 	}
 	
@@ -112,7 +114,7 @@ class Magento_Template_Helper{
 	 */
 	public function product_default_price(){
 		if($this->inside_product_loop()){
-			echo $this->this_number_format($this->magento_products[$this->i]['result']['price']);
+			return $this->this_number_format($this->magento_products[$this->i]['result']['price']);
 		}
 	}
 	
@@ -121,7 +123,7 @@ class Magento_Template_Helper{
 	 */
 	public function product_url(){
 		if($this->inside_product_loop()){
-			echo $this->magento_products[$this->i]['result']['url_path'];
+			return $this->magento_products[$this->i]['result']['url_path'];
 		}
 	}
 	
@@ -147,7 +149,7 @@ class Magento_Template_Helper{
 	 */
 	public function product_image_url(){
 		if($this->inside_product_loop() && $this->inside_image_loop()){
-			echo $this->magento_products[$this->i]['images'][$this->imageI]['url'];
+			return $this->magento_products[$this->i]['images'][$this->imageI]['url'];
 		}
 	}
 	
@@ -163,7 +165,7 @@ class Magento_Template_Helper{
 	 * Tests if the product has an image.
 	 */
 	public function product_thumbnail_url(){
-		if($this->inside_product_loop() && isset($this->magento_products[$this->i]['images']) && !empty($this->magento_products[$this->i]['images'])) echo $this->magento_products[$this->i]['images'][0]['url'];
+		if($this->inside_product_loop() && isset($this->magento_products[$this->i]['images']) && !empty($this->magento_products[$this->i]['images'])) return $this->magento_products[$this->i]['images'][0]['url'];
 	}
 	
 	/**
@@ -180,5 +182,60 @@ class Magento_Template_Helper{
 		if($this->imageI >= 0 && $this->imageI < $this->countImage) return true;
 		return false;
 	}
+}
+
+/**
+ * Define some functions to call the static
+ * functions inside the Magento_Template_Helper
+ * class from the templates. 
+ */
+function magento_have_products(){
+	global $Magento;
+	return $Magento->have_products();
+}
+
+function magento_product_title(){
+	global $Magento;
+	echo $Magento->product_title;
+}
+
+function magento_product_url(){
+	global $Magento;
+	echo $Magento->product_url();
+}
+
+function magento_product_price(){
+	global $Magento;
+	echo $Magento->product_price();
+}
+
+function magento_product_default_price(){
+	global $Magento;
+	echo $Magento->product_default_price();
+}
+
+function magento_product_special_price(){
+	global $Magento;
+	echo $Magento->product_special_price();
+}
+
+function magento_has_image(){
+	global $Magento;
+	return $Magento->has_image();
+}
+
+function magento_product_thumbnail_url(){
+	global $Magento;
+	echo $Magento->product_thumbnail_url();
+}
+
+function magento_have_images(){
+	global $Magento;
+	return $Magento->have_images();
+}
+
+function magento_product_image_url(){
+	global $Magento;
+	echo $Magento->product_image_url();
 }
 ?>

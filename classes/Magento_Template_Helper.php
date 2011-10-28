@@ -196,7 +196,7 @@ function magento_have_products(){
 
 function magento_product_title(){
 	global $Magento;
-	echo $Magento->product_title;
+	echo $Magento->product_title();
 }
 
 function magento_product_url(){

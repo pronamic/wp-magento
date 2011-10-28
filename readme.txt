@@ -35,7 +35,8 @@ behind the last trailing slash.
 Before you can set the username and API key field you'll need to have created a webservices
 account in your Magento store Admin Panel. To do this, go to your Admin Panel and go to
 'System' -> 'Webservices' -> 'Users'. Here you can create a new user (there's your user name).
-The user's password will be the API key. Now fill out the username and API key field.
+The user's password will be the API key. Now fill out the username and API key field. there
+are still some Magento settings to check, but we'll cover that later.
 
 Lastly, the caching option. If you set caching to 'Yes', you will notice a much shorter page
 loading time once the cache has been saved.
@@ -46,6 +47,34 @@ select your currency. The currency will be displayed on either side of the price
 and will have as many digits after the decimal separator as you set it to have. Also, you can
 set the thousands separator. These settings influence te way product prices are shown by the
 plugin.
+
+= Settings on the Magento side =
+It's very likely you'll still have set some Magento settings to get your plugin to show
+products from your Magento store. Let's check your store's settings now. Go to your store and
+log into the admin page with your admin account (http://yourstore.ext/index.php/admin). When
+you're logged in, hover your mouse cursor over 'System'. A list will pop up and in that list
+you'll notice a row that says 'Web services', hover over it. Now a small list pops up and
+you'll see the row that says 'Roles', click it. The page you see now, should contain a table
+with (or without) roles. When the table is empty, create a new role, else choose the role
+the user, the one you filled in at the API settings earlier, covers. 
+
+When you've clicked a role, or created a new one, you see three tabs at the left side of the
+page. Click the one that says 'Role Resources'. Here you will see either a dropdown select 
+field or a list with checkboxes with a select field above it saying 'custom'. If the select
+field says 'custom', then make sure the following checkboxes are checked in order for your 
+plugin to work correctly.
+
+- Catalog
+- Catalog->Product
+- Catalog->Product->Product Details
+- Catalog->Product Images
+- Catalog->Category
+- Catalog->Category->Get Category Tree
+- Catalog->Category->Get Category Details
+- Catalog->Category->Assigned Products
+
+You'll notice that when some of these checkboxes mentioned above are not checked, some
+functionality will be missing from the plugin.
 
 
 == User instructions ==

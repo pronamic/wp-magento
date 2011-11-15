@@ -3,7 +3,7 @@
 Plugin Name: Magento
 Plugin URI: http://pronamic.eu/wordpress/magento/
 Description: Integrate Magent content into your WordPress website. 
-Version: beta-0.2
+Version: beta-0.2.1
 Requires at least: 3.0
 Author: Pronamic
 Author URI: http://pronamic.eu/
@@ -63,6 +63,10 @@ class Init {
 			'magento-admin' , 
 			plugins_url('css/admin.css', __FILE__)
 		);
+		
+		// Shortcode editor for rich text editor
+		add_action('media_buttons_context', array('Magento_Shortcode_Editor', 'addMagentoShortcodeButton'));
+		if(in_array(basename($_SERVER['PHP_SELF']), array('post.php', 'page.php', 'page-new.php', 'post-new.php'))) add_action('admin_footer',  array('Magento_Shortcode_Editor', 'addMagentoShortcodeButtonForm'));
 	}
 
 	public static function adminMenu() {

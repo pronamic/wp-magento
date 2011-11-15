@@ -1,4 +1,10 @@
-<?php 
+<?php
+/**
+ * A widget for showing the latest products
+ * 
+ * @author Stefan Boonstra
+ * @version 2011
+ */
 class Magento_Latest_Products_Widget extends WP_Widget{
 	
 	/**

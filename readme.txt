@@ -3,7 +3,7 @@ Contributors: pronamic, remcotolsma, stefanboonstra
 Tags: magento, webshop, e-commerce
 Requires at least: 3.0
 Tested up to: 3.2.1
-Stable tag: beta-0.2
+Stable tag: beta-0.2.1
 
 Integrate Magento content into your WordPress website. 
 
@@ -82,6 +82,12 @@ functionality will be missing from the plugin.
 When you have configured the plugin correctly (as described above), you'll be able to
 contact your Magento store and start showing some products on your WordPress site.
 This short guide will show you how to use both the plugin and the widget of our plugin.
+
+= Don't let the long explanation scare you off! =
+The description is here, and this long, to make entirely sure everyone can understand it.
+Also, you don't have to understand shortcode for this plugin because of the shortcode
+editor we implemented, which you can find right above your WordPress page/post editor, does
+all the shortcode for you.
 
 = User instructions - Showing products in posts/pages using shortcode =
 To show your products in one of your posts or pages you can write a line of shortcode into it.
@@ -253,6 +259,8 @@ area showing three latest products.
 
 
 == Changelog ==
+= beta-0.2.1 =
+*	Added a shortcode editor to the rich text editor. Now users do not have to edit shortcode by hand anymore.
 
 = beta-0.2 =
 *	Made multiple 'pid' input possible. Comma seperated.

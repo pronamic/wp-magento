@@ -1,4 +1,12 @@
-<?php 
+<?php
+/**
+ * Handles template chaching, this is the heavy
+ * kind of caching and will cache even the layout
+ * of the request.
+ * 
+ * @author Stefan Boonstra
+ * @version 2011
+ */
 class Magento_Cache {
 	private static $CACHETIME;
 	private static $DEFAULTCACHENAME = 'pronamic-magento-plugin-defaultcache';

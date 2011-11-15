@@ -1,4 +1,15 @@
-<?php 
+<?php
+/**
+ * This class contains the methods that will
+ * help users build a template to show their
+ * products in. Outside the class are the global
+ * functions that contact this class to enable the
+ * user to call this class without having to know
+ * anything about it.
+ * 
+ * @author Stefan Boonstra
+ * @version 2011
+ */
 class Magento_Template_Helper{
 	private $magento_products;
 	private $i;

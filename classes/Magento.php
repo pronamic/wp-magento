@@ -1,4 +1,12 @@
 <?php
+/**
+ * Main shortcode class of the plugin
+ * Takes care of getting results and outputting
+ * them to the user
+ * 
+ * @author Pronamic, Remco Tolsma, Stefan Boonstra
+ * @version 2011
+ */
 class Magento {
 	const CACHETIME = 43200; // 12hrs (60*60*12);
 	//const CACHETIME = 300; // 5 minutes.

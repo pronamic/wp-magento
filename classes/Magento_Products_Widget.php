@@ -1,4 +1,10 @@
-<?php 
+<?php
+/**
+ * Widget for showing products by ID/SKU, category and name_like
+ * 
+ * @author Stefan Boonstra
+ * @version 2011
+ */
 class Magento_Products_Widget extends WP_Widget{
 	
 	/**

@@ -72,4 +72,3 @@ class Magento_Latest_Products_Widget extends WP_Widget{
 		echo $content;
 	}	
 }
-?>

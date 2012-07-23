@@ -2,10 +2,11 @@
 Contributors: pronamic, remcotolsma, stefanboonstra
 Tags: magento, webshop, e-commerce
 Requires at least: 3.0
-Tested up to: 3.2.1
-Stable tag: beta-0.2.1
+Tested up to: 3.4.1
+Stable tag: beta-0.2.2
 
 Integrate Magento content into your WordPress website. 
+
 
 == Description ==
 
@@ -18,10 +19,13 @@ who'd like to advertise their products on their WordPress website.
 == Installation ==
 
 = Activation =
+
 Extract the zip file and just drop the contents in the wp-content/plugins/ directory of your 
 WordPress installation and then activate the Plugin from Plugins page. 
 
+
 = API Settings =
+
 After avtivating the plugin, you should see a Magento tab in your admin menu. Go there and
 click API Settings. On this page there are a few settings that need to be set. 
 
@@ -41,14 +45,18 @@ are still some Magento settings to check, but we'll cover that later.
 Lastly, the caching option. If you set caching to 'Yes', you will notice a much shorter page
 loading time once the cache has been saved.
 
+
 = Currency Settings =
+
 To set the display the correct currency you should go to Currency Settings. There you can
 select your currency. The currency will be displayed on either side of the price you select
 and will have as many digits after the decimal separator as you set it to have. Also, you can
 set the thousands separator. These settings influence te way product prices are shown by the
 plugin.
 
+
 = Settings on the Magento side =
+
 It's very likely you'll still have set some Magento settings to get your plugin to show
 products from your Magento store. Let's check your store's settings now. Go to your store and
 log into the admin page with your admin account (http://yourstore.ext/index.php/admin). When
@@ -83,13 +91,17 @@ When you have configured the plugin correctly (as described above), you'll be ab
 contact your Magento store and start showing some products on your WordPress site.
 This short guide will show you how to use both the plugin and the widget of our plugin.
 
+
 = Don't let the long explanation scare you off! =
+
 The description is here, and this long, to make entirely sure everyone can understand it.
 Also, you don't have to understand shortcode for this plugin because of the shortcode
 editor we implemented, which you can find right above your WordPress page/post editor, does
 all the shortcode for you.
 
+
 = User instructions - Showing products in posts/pages using shortcode =
+
 To show your products in one of your posts or pages you can write a line of shortcode into it.
 Where ever you write the line of shortcode in your post or page, the products will apear. A
 piece of shortcode would look a bit like the following:
@@ -200,6 +212,7 @@ Assuming we are still using the same database with the balls, this piece of shor
 only the 'balls' record, because it searched the database for words that started with the word 'ball'.
 
 = User instructions - Showing products in a widget =
+
 The widgets should be a little more easy to configure. After activating the plugin on your plugins
 page, the widgets should show in your widget admin page. There are two widgets, 'Magento Products' and 
 'Magento Latest Products'. The first one can show products by ID or SKU, by category and by a word to
@@ -208,19 +221,25 @@ The second widget shows the latest products, it only takes one field which is ho
 be shown. If this field is set to zero, the widget will show all products. Multiple instances of each
 widget can be created. When activating your widget, you might have to save before any product shows.
 
+
 = User instructions - Creating custom templates =
+
 This part of the tutorial will explain how to create custom layouts for your shortcode and widget
 output. For every widget you can create a different layout, this is not possible for shortcode
 output. The templates in our plugin's templates folder should give you a good idea of how to
 customize a template of your own. We disencourage attempting to adapt the default template files.
 
+
 = Custom shortcode template =
+
 If you want to customize the layout of the outputted html of the shortcode, you should copy a
 template file from our plugin's template folder and paste it into your wordpress theme folder.
 The template file contains a description of the different functions you can use to show your
 products with. The template should be named: "magento-products-shortcode.php".
 
+
 = Custom widget template =
+
 Customizing the widget template can be done with one collective custom widget template (which
 means it's a custom templates for every widget, except the ones that already have a custom template
 file of their own), but also every widget can has his own separate template. This last feature
@@ -238,12 +257,15 @@ specific widget is shown there. This you can use to name a custom template file 
 copy a default template file from our plugin's template folder and paste it to your theme folder. 
 You should rename the file to something like this: "magento-products-magento-products3.php".
 
+
 = Custom CSS =
+
 The CSS can be overridden by your own in your style.css file. Our default stylesheet is registered
 under the name 'pronamic-magento-plugin-stylesheet' and thus can be deregistered.
 
 
 == Screenshots ==
+
 1. The API settings page.
 
 2. The currency settings page.
@@ -259,6 +281,11 @@ area showing three latest products.
 
 
 == Changelog ==
+
+= beta-0.2.2 =
+*	Added special date from to check in the price template, in request of Matt Thiessen.
+*	Removed all closing PHP tags at the end of PHP files.
+
 = beta-0.2.1 =
 *	Added a shortcode editor to the rich text editor. Now users do not have to edit shortcode by hand anymore.
 
@@ -298,3 +325,4 @@ area showing three latest products.
 *	[Pronamic Page Teasers](http://wordpress.org/extend/plugins/pronamic-page-teasers/)
 *	[Maildit](http://wordpress.org/extend/plugins/maildit/)
 *	[Pronamic Framework](http://wordpress.org/extend/plugins/pronamic-framework/)
+

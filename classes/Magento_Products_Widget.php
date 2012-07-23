@@ -83,4 +83,3 @@ class Magento_Products_Widget extends WP_Widget{
 		echo $content;
 	}	
 }
-?>

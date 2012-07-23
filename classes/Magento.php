@@ -673,4 +673,3 @@ class Magento {
 		return $array;
 	}
 }
-?>

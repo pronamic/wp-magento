@@ -81,4 +81,3 @@ class Magento_Cache {
 		}catch(Exception $e){	}
 	}
 }
-?>

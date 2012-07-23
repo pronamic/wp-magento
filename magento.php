@@ -2,11 +2,14 @@
 /*
 Plugin Name: Magento
 Plugin URI: http://pronamic.eu/wordpress/magento/
-Description: Integrate Magent content into your WordPress website. 
-Version: beta-0.2.1
+Description: Integrate Magent content into your WordPress website.
+
+Version: beta-0.2.2
 Requires at least: 3.0
+
 Author: Pronamic
 Author URI: http://pronamic.eu/
+
 License: GPL
 */
 
@@ -134,4 +137,3 @@ class Init {
 }
 
 Init::bootstrap();
-?>

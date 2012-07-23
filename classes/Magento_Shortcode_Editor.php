@@ -94,4 +94,3 @@ class Magento_Shortcode_Editor {
 		<?php
 	}
 }
-?>

@@ -63,6 +63,8 @@ class Magento_Template_Helper{
 		if($this->inside_product_loop()){
 			// Currency settings
 			$price = $this->magento_products[$this->i]['result']['price'];
+			$special_from_date = $this->magento_products[$this->i]['result']['special_from_date'];
+			$special_to_date = $this->magento_products[$this->i]['result']['special_to_date'];
 			$specialprice = $this->magento_products[$this->i]['result']['special_price'];
 			$currency = get_option('magento-currency-setting');
 			$position = get_option('magento-currency-position');
@@ -83,8 +85,29 @@ class Magento_Template_Helper{
 				case 'right_space': $rightspace = ' ' . $currency; break;
 				default: $left = $currency; break;
 			}
-			
-			if(isset($specialprice)){				
+
+			// Special price
+			$special_price_active = true;
+
+			$current_date = time();
+
+			if( ! empty( $special_from_date ) ) {
+				$special_from_date = strtotime( $special_from_date );
+
+				if( $special_from_date !== false ) {
+					$special_price_active &= ( $current_date >= $special_from_date );
+				}
+			}
+
+			if( ! empty( $special_to_date ) ) {
+				$special_to_date = strtotime( $special_to_date );
+
+				if( $special_to_date !== false ) {
+					$special_price_active &= ( $current_date <= $special_to_date );
+				}
+			}
+
+			if(isset($specialprice) && $special_price_active) {				
 				$productprice .= '<del>'.$left.$leftspace.$this->this_number_format($price).$right.$rightspace.'</del> <b>'.$left.$leftspace.$this->this_number_format($specialprice).$right.$rightspace.'</b>';
 			}else{
 				$productprice .= $left.$leftspace.$this->this_number_format($price).$right.$rightspace;
@@ -249,4 +272,3 @@ function magento_product_image_url(){
 	global $Magento;
 	echo $Magento->product_image_url();
 }
-?>

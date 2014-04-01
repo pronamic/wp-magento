@@ -10,6 +10,10 @@ Integrate Magento content into your WordPress website.
 
 == Description ==
 
+> With the growth of WordPress ecommerce solution Pronamic wil no longer support and maintain this Magento plugin.
+> 
+> If you want to help maintain the plugin, fork it on [GitHub](https://github.com/pronamic/wp-magento) and open pull requests.
+
 This plugin makes it possible to show products from your Magento store on your WordPress
 website. You can either show your products with a shortcode on your pages or in posts or 
 using the widget to show it in the sidebar. A perfect solution for Magento store owners 

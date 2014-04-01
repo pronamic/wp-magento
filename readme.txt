@@ -10,7 +10,7 @@ Integrate Magento content into your WordPress website.
 
 == Description ==
 
-> With the growth of WordPress ecommerce solution Pronamic wil no longer support and maintain this Magento plugin.
+> With the growth of WordPress ecommerce solution Pronamic wil **no longer support and maintain** this Magento plugin.
 > 
 > If you want to help maintain the plugin, fork it on [GitHub](https://github.com/pronamic/wp-magento) and open pull requests.
 

@@ -1,3 +1,5 @@
-#Mon Oct 03 09:08:42 CEST 2011
 eclipse.preferences.version=1
 include_path=0;/magento
+phpVersion=php5.3
+useShortTags=false
+use_asp_tags_as_php=false

@@ -18,7 +18,7 @@ class Magento_Products_Widget extends WP_Widget{
 		$control_ops = array('width' => 300, 'height' => 350, 'id_base' => 'magento_products');
 		
 		// Create the widget.
-		$this->WP_Widget('magento_products', __('Magento Products', 'pronamic-magento-plugin'), $widget_ops, $control_ops);
+		parent::__construct('magento_products', __('Magento Products', 'pronamic-magento-plugin'), $widget_ops, $control_ops);
 	}
 	
 	/**

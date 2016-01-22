@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<ruleset name="Magento plugin rules">
+	<rule ref="WordPress">
+		<exclude name="Squiz.Commenting" />
+	</rule>
+</ruleset>
